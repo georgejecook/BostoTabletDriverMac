@@ -104,7 +104,7 @@ tabletSettings bostoSettings = {-1, 6000, 4500, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0
 @property(nonatomic) struct __IOHIDTransaction *transactionRef;
 
 
-@property(nonatomic) CGRect const tabletMapping;
+@property(nonatomic) CGRect tabletMapping;
 
 @property(nonatomic, strong) BTScreenManager *screenManager;
 
@@ -731,7 +731,7 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
 // Command-line arguments might leave some of these set to -1.
 // The rest are set when the tablet dimensions are received.
 //
-- (void)setTabletMapping:(CGRect const)tabletMapping
+- (void)setTabletMapping:(CGRect)tabletMapping
 {
     float x = (tabletMapping.origin.x != -1) ? tabletMapping.origin.x : 0;
     float y = (tabletMapping.origin.y != -1) ? tabletMapping.origin.y : 0;

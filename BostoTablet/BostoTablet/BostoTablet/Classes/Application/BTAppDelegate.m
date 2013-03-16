@@ -7,12 +7,14 @@
 //
 
 #import "BTAppDelegate.h"
+#import "BTDriverManager.h"
 
 @implementation BTAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     // Insert code here to initialize your application
+    NSLog(@"created driver manager %@", [BTDriverManager shared]);
 
 }
 
