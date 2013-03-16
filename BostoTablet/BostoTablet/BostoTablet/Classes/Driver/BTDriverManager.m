@@ -77,7 +77,7 @@ typedef struct _settings
 
 //Settings for Bostom 19mb
 
-tabletSettings bostoSettings = {-1, 6000, 4500, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0x08ca, 0x0010, 0, false, 8, false};
+tabletSettings bostoSettings = {-1, 54290, 30682, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0xED1, 0x782C, 0, false, 8, false};
 
 
 @interface BTDriverManager ()
@@ -93,20 +93,16 @@ tabletSettings bostoSettings = {-1, 6000, 4500, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0
 
 @property(nonatomic, assign) IOHIDDeviceRef currentDeviceRef;
 
-@property(nonatomic) struct __IOHIDElement *xHIDElementRef;
-
-@property(nonatomic) struct __IOHIDElement *yHIDElementRef;
-
-@property(nonatomic) struct __IOHIDElement *proximityHIDElementRef;
-
-@property(nonatomic) struct __IOHIDElement *pressureHIDElementRef;
-
 @property(nonatomic) struct __IOHIDTransaction *transactionRef;
 
 
 @property(nonatomic) CGRect tabletMapping;
 
 @property(nonatomic, strong) BTScreenManager *screenManager;
+
+@property(nonatomic) int testStartBit;
+
+@property(nonatomic) int numberOfTestBits;
 
 //calback methods
 - (void)didRemoveDevice:(IOHIDDeviceRef)deviceRef withContext:(void *)context result:(IOReturn)result sender:(void *)sender;
@@ -145,32 +141,8 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 }
 
 //////////////////////////////////////////////////////////////
-#pragma mark c functions 
-//////////////////////////////////////////////////////////////
-
-//TODO make a macro or something
-int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
-    IOHIDValueRef valueRef;
-    IOHIDDeviceGetValue(deviceRef, element, &valueRef);
-    int returnValue = IOHIDValueGetIntegerValue(valueRef);
-    CFRelease(valueRef);
-    return returnValue;
-
-//    if (valueRef)
-//    {
-//        double scaled = IOHIDValueGetScaledValue(valueRef, kIOHIDValueScaleTypePhysical);
-//        return scaled;
-//    }
-//    return 0;
-//
-}
-
-
-//////////////////////////////////////////////////////////////
 #pragma mark impl 
 //////////////////////////////////////////////////////////////
-
-
 
 @implementation BTDriverManager
 {
@@ -201,6 +173,9 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
         [self initializeHID];
         [self initializeScreenSettings];
     }
+    self.testStartBit = 8;
+    self.numberOfTestBits = 16;
+
 
     return self;
 }
@@ -276,16 +251,25 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
     if (KERN_SUCCESS == (kr = [self closeHIDService]))
     {
         mach_port_t port = self.io_master_port;
-        if (KERN_SUCCESS == (kr = IOMasterPort(MACH_PORT_NULL, &port)) && self.io_master_port != MACH_PORT_NULL)
+        if (KERN_SUCCESS == (kr = IOMasterPort(MACH_PORT_NULL, &port)) && port != MACH_PORT_NULL)
         {
+            self.io_master_port = port;
             if ((service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching(kIOHIDSystemClass))))
             {
                 kr = IOServiceOpen(service, mach_task_self(), kIOHIDParamConnectType, &ev);
                 IOObjectRelease(service);
 
-                if (KERN_SUCCESS == kr)
+                if (KERN_SUCCESS == kr) {
                     self.gEventDriver = ev;
+                    NSLog(@"created global event driver");
+                } else {
+                    NSLog(@"error opening service");
+                }
+            } else {
+                NSLog(@"error opning port");
             }
+        } else {
+            NSLog (@"error closing port before opening");
         }
     }
 
@@ -406,9 +390,9 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
 
 - (void)didRemoveDevice:(IOHIDDeviceRef)deviceRef withContext:(void *)context result:(IOReturn)result sender:(void *)sender
 {
-    self.currentDeviceRef = NULL;
     IOHIDDeviceUnscheduleFromRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-    NSLog(@"tablet removed");
+    self.currentDeviceRef = NULL;
+    NSLog(@"tablet removed - cleaned up references");
 }
 
 - (void)didConnectDevice:(IOHIDDeviceRef)deviceRef withContext:(void *)context result:(IOReturn)result sender:(void *)sender
@@ -425,65 +409,138 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
 //
     NSLog(@"tablet connected");
     IOHIDDeviceScheduleWithRunLoop(self.currentDeviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-
-    CFArrayRef elemAry = IOHIDDeviceCopyMatchingElements(self.currentDeviceRef, NULL, 0);
-    self.xHIDElementRef = (IOHIDElementRef) CFArrayGetValueAtIndex(elemAry, 8);
-    self.yHIDElementRef = (IOHIDElementRef) CFArrayGetValueAtIndex(elemAry, 9);
-    self.proximityHIDElementRef = (IOHIDElementRef) CFArrayGetValueAtIndex(elemAry, 6);
-    self.pressureHIDElementRef = (IOHIDElementRef) CFArrayGetValueAtIndex(elemAry, 10); //also 11, and 12
-
-//    xScaleFactor = hpSettings.screenWidth / 27135; //TODO get this from the element
-//    yScaleFactor = hpSettings.screenWidth / 15300; //TODO get this from the element, these are observed values right now
     IOHIDDeviceRegisterInputReportCallback(self.currentDeviceRef, reportBuffer, 512, theInputReportCallback, "hund katze maus");
 
-
-    //TODO - work out how to do this
-//    self.transactionRef = IOHIDTransactionCreate(
-//        kCFAllocatorDefault,
-//        self.currentDeviceRef,
-//        kIOHIDTransactionDirectionTypeInput,
-//        kIOHIDOptionsTypeNone);
-//    IOHIDTransactionAddElement(self.transactionRef, self.xHIDElementRef);
-//    IOHIDTransactionAddElement(self.transactionRef, self.yHIDElementRef);
-//    IOHIDTransactionAddElement(self.transactionRef, self.proximityHIDElementRef);
-//    IOHIDTransactionAddElement(self.transactionRef, self.pressureHIDElementRef);
-//    IOHIDTransactionCommit(self.transactionRef);
-//    IOHIDTransactionScheduleWithRunLoop(self.transactionRef, CFRunLoopGetCurrent( ), kCFRunLoopDefaultMode );
 }
 
+
+int getBit(char data, int i) {
+    return (data >> i) & 0x01;
+}
+
+int fromBinary(char *s) {
+    return (int) strtol(s, NULL, 2);
+}
+
+- (NSString *)reverseString:(NSString *)string
+{
+    NSMutableString *reversedString;
+    int length = [string length];
+    reversedString = [NSMutableString stringWithCapacity:length];
+
+    while (length--)
+    {
+        [reversedString appendFormat:@"%C", [string characterAtIndex:length]];
+    }
+
+    return reversedString;
+}
+
+- (NSString *)bitStringWithInt:(int)num
+{
+    NSMutableString *bits = [@"" mutableCopy];
+    for (int j = 0; j < 8; j++)
+    {
+        [bits appendFormat:@"%d", getBit(num, j)];
+    }
+    return bits;
+}
+
+- (NSString *)bitStringWithArray:(int [])array length:(int)length
+{
+    NSMutableString *bits = [@"" mutableCopy];
+    for (int j = 0; j < length; j++)
+    {
+        [bits appendFormat:@"%d", array[j]];
+    }
+    return bits;
+}
+
+
+- (NSString *)bitStringWithBits:(int [])bits startIndex:(int)startIndex length:(int)length
+{
+    NSMutableString *bitString = [@"" mutableCopy];
+    int end = startIndex + length;
+    for (int j = startIndex; j < end; j++)
+    {
+        [bitString appendFormat:@"%d", bits[j]];
+    }
+    return [self reverseString:bitString];
+}
+
+
+/**
+* for some reason the bosto report reports retarded data, so I had to do a lot of messing about
+* to get sensible values out of it.
+*/
 - (void)didReceiveReport:(uint8_t *)report withID:(uint32_t)reportID
 {
+    //TODO optimize this.
+
     UInt16 bm = 0; // button mask
 
-    SInt32 currentX = (SInt32) valueForElement(_xHIDElementRef, _currentDeviceRef);
-    SInt32 currentY = (SInt32) valueForElement(_yHIDElementRef, _currentDeviceRef);
+    int xCoord;
+    int yCoord;
+    int tipPressure;
+    ResetButtons;  // forget the system buttons and reconstruct them in this routine
 
-    double pressure = valueForElement(_pressureHIDElementRef, _currentDeviceRef);
-    pressure = ((pressure * (unsigned long long) 0xffff) / (unsigned) (1024LL)); //scale value up to internal representation
-    _stylus.pressure = (UInt16) pressure;
+    int allBits[8 * 8];
 
-    SInt32 deltaX = _stylus.old.x - currentX;
-    SInt32 deltaY = _stylus.old.y - currentY;
+    int index = 0;
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            allBits[index] = getBit(report[i], j);
+            index++;
+        }
+    }
+    //NSLog([self bitStringWithArray:allBits length:8*8]);
+    //through trial and error I found that x starts at bit 15, and y at bit 31 - they are both 16 bits.
 
-    ResetButtons;
+    tipPressure = report[6] | report[7] << 8;
+    NSString *xString = [self bitStringWithBits:allBits startIndex:15 length:16];
+    NSString *yString = [self bitStringWithBits:allBits startIndex:31 length:16];
+    xCoord = fromBinary([xString UTF8String]);
+    yCoord = fromBinary([yString UTF8String]);
 
+   // NSLog(@"update %d/%d, pres : %d off_tab xbits %@, ybits %@", xCoord, yCoord, tipPressure, xString, yString);
+
+    // Remember the old position for tracking relative motion
     _stylus.old.x = _stylus.point.x;
     _stylus.old.y = _stylus.point.y;
 
-    _stylus.point.x = currentX;
-    _stylus.point.y = currentY;
+    // store new postion
+    _stylus.point.x = xCoord;
+    _stylus.point.y = yCoord;
 
-    _stylus.motion.x = deltaX;
-    _stylus.motion.y = deltaY;
-    _stylus.off_tablet = !valueForElement(_proximityHIDElementRef, _currentDeviceRef);
+    // calculate difference
+    _stylus.motion.x = _stylus.point.x - _stylus.old.x;
+    _stylus.motion.y = _stylus.point.y - _stylus.old.y; // point und old werden in tablet koordinaten Ã¼bertragen
 
-    NSLog(@"update %d/%d, pres : %d(%f) off_tab %d", _stylus.point.x, _stylus.point.y, _stylus.pressure, pressure, _stylus.off_tablet);
+    // tablet events are scaled to 0xFFFF (16 bit), so
+    // a little shift to the right is needed
+    _stylus.pressure = tipPressure << 7;
 
-    if (_stylus.pressure > 0)
+    // reconstruct the button state
+    if (allBits[8] && !allBits[9])
     {
         bm |= kBitStylusTip;
     }
-    //    bm |= kBitStylusButton2; //TODO check for button 2
+
+    if (allBits[9])
+    {
+        bm |= kBitStylusButton1;
+//        bm |= kBitStylusButton2; //not sure if it counts as button 2?
+    }
+
+    // set the button state in the current stylus state
+    SetButtons(bm);
+
+    _stylus.off_tablet = !allBits[12];
+
+
+    NSLog(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
 
     // set the button state in the current stylus state
     SetButtons(bm);
@@ -493,6 +550,12 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
 - (void)updateStylusStatus
 {
     static bool dragState = false;
+
+    CGPoint mappedPoint = [self.screenManager mapTabletCoordinatesToDisplaySpaceWithPoint:CGPointMake(_stylus.point.x, _stylus.point.y)
+                                                    toTabletMapping:self.tabletMapping];
+    _stylus.scrPos.x = mappedPoint.x;
+    _stylus.scrPos.y = mappedPoint.y;
+    NSLog(@"[[[[mapped pos %d,%d to %f,%f", _stylus.point.x, _stylus.point.y, mappedPoint.x, mappedPoint.y);
 
     // Map Stylus buttons to system buttons
     bzero(buttonState, sizeof(buttonState));
@@ -620,6 +683,7 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
     {
         case NX_OMOUSEUP:
         case NX_OMOUSEDOWN:
+            NSLog(@"[mouseup event]");
             eventData.mouse.click = 0;
             eventData.mouse.buttonNumber = otherButton;
             break;
@@ -629,6 +693,7 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
         case NX_RMOUSEDOWN:
         case NX_RMOUSEUP:
         case NX_LMOUSEUP:
+            NSLog(@"[mousedown event]");
             eventData.mouse.pressure = 0;
             eventData.mouse.subType = eventSubType;
             eventData.mouse.subx = 0;
@@ -656,6 +721,7 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
         case NX_MOUSEMOVED:
         case NX_LMOUSEDRAGGED:
         case NX_RMOUSEDRAGGED:
+            NSLog(@"[Drag event]");
             bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
             bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(_stylus.proximity));
 
@@ -695,15 +761,15 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
             break;
     }
 
-    eventData.mouseMove.tablet.point.tangentialPressure = 1;
-    eventData.mouseMove.tablet.point.pressure = 1;// stylus.pressure * 20000;
+//    eventData.mouseMove.tablet.point.tangentialPressure = 1;
+//    eventData.mouseMove.tablet.point.pressure = 1;// stylus.pressure * 20000;
 
     bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
     bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(_stylus.proximity));
-    NSLog(@">>>>>>eventdata.pressure %d cap mask %d", eventData.mouseMove.tablet.point.pressure, eventData.mouseMove.tablet.proximity.capabilityMask);
 
     // Generate the tablet event to the system event driver
     IOGPoint newPoint = {_stylus.scrPos.x, _stylus.scrPos.y};
+    NSLog(@"[POSTING] pos: %d,%d, eventdata.pressure %d cap mask %d", newPoint.x, newPoint.y, eventData.mouseMove.tablet.point.pressure, eventData.mouseMove.tablet.proximity.capabilityMask);
     (void) IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &eventData, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
 
     // we always post a proximity event individually
@@ -735,9 +801,80 @@ int valueForElement(IOHIDElementRef element, IOHIDDeviceRef deviceRef) {
 {
     float x = (tabletMapping.origin.x != -1) ? tabletMapping.origin.x : 0;
     float y = (tabletMapping.origin.y != -1) ? tabletMapping.origin.y : 0;
-    float w = (tabletMapping.size.width != -1) ? (tabletMapping.size.width - tabletMapping.origin.x + 1) : 6000;
-    float h = (tabletMapping.size.height != -1) ? (tabletMapping.size.height - tabletMapping.origin.y + 1) : 4500;
+    float w = (tabletMapping.size.width != -1) ? (tabletMapping.size.width - tabletMapping.origin.x + 1) : bostoSettings.tabletWidth;
+    float h = (tabletMapping.size.height != -1) ? (tabletMapping.size.height - tabletMapping.origin.y + 1) : bostoSettings.tabletHeight;
     _tabletMapping = CGRectMake(x, y, w, h);
 }
+
+//////////////////////////////////////////////////////////////
+#pragma mark debugging code I used to figure out the values in the report
+//////////////////////////////////////////////////////////////
+
+
+    //debugging to help us work out the report bytes (it seems that the bytes are somewhat up the spout on their input report
+    //I'm leaving debug code in here (commented out)in case others have slightly different bosto monitors
+//this was in init
+//    [NSEvent addGlobalMonitorForEventsMatchingMask:(NSKeyUpMask) handler:^(NSEvent *event) {
+//        if (event.keyCode == 126)
+//        {
+//            self.testStartBit++;
+//            NSLog(@"testStartBit now %d", self.testStartBit);
+//        } else if (event.keyCode == 125)
+//        {
+//            self.testStartBit--;
+//            NSLog(@"testStartBit now %d", self.testStartBit);
+//        } else if (event.keyCode == 124)
+//        {
+//            self.numberOfTestBits++;
+//            NSLog(@"numbits now %d", self.numberOfTestBits);
+//        } else if (event.keyCode == 123)
+//        {
+//            self.numberOfTestBits--;
+//            NSLog(@"numberOfTestBits now %d", self.numberOfTestBits);
+//        }
+//    }];
+
+
+/**
+* code I used to work out what was actually in the report
+*
+- (void)didReceiveReport:(uint8_t *)report withID:(uint32_t)reportID
+{
+
+    UInt16 bm = 0; // button mask
+
+
+    int xCoord;
+    int yCoord;
+    int tipPressure;
+
+    ResetButtons;  // forget the system buttons and reconstruct them in this routine
+
+    NSMutableString *bits = [@"" mutableCopy];
+    NSMutableString *counter = [@"" mutableCopy];
+    NSMutableString *line = [@"" mutableCopy];
+    NSMutableString *byte = [@"" mutableCopy];
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            [bits appendFormat:@"%d", getBit(report[i], j)];
+            [counter appendFormat:@"%d", j];
+            [line appendString:@"-"];
+        }
+        [byte appendFormat:@"byte %d  ", i];
+    }
+
+    NSString *bitString = [bits substringWithRange:NSMakeRange(self.testStartBit, _numberOfTestBits)];
+    xCoord = fromBinary([bitString UTF8String]);
+    NSString *reversedBitString = [self reverseString:bitString];
+    int reversedValue = fromBinary([reversedBitString UTF8String]);
+
+    tipPressure = report[6] | report[7] << 8;
+    NSLog(@"start %d: %d (%@), altX %d (%@)", self.testStartBit, xCoord, bitString, reversedValue, reversedBitString);
+
+*/
+
+
 
 @end
