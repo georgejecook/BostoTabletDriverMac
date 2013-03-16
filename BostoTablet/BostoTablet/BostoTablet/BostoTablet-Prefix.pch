@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'BostoTablet' target in the 'BostoTablet' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+
+#endif
