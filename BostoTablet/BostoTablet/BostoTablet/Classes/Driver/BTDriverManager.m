@@ -1,12 +1,47 @@
-//
-// Created by georgecook on 15/03/2013.
-//
-//  Copyright (c) 2012 Twin Technologies LLC. All rights reserved.
-//
+/*
+ (c) George Cook 2013
+ --
+ Based on Udo Killerman's Hyperpen-for-apple project http://code.google.com/p/hyperpen-for-apple/
+ Tablet State and Event Processing taken in major parts from
+ Tablet Magic Daemon Sources (c) 2011 Thinkyhead Software
+
+ Aiptek Report Decoding and Command Codes taken from Linux 2.6
+ Kernel Driver aiptek.c
+ --
+ Copyright (c) 2001      Chris Atenasio   <chris@crud.net>
+ Copyright (c) 2002-2004 Bryan W. Headley <bwheadley@earthlink.net>
+
+ based on wacom.c by
+ Vojtech Pavlik      <vojtech@suse.cz>
+ Andreas Bach Aaen   <abach@stofanet.dk>
+ Clifford Wolf       <clifford@clifford.at>
+ Sam Mosel           <sam.mosel@computer.org>
+ James E. Blair      <corvus@gnu.org>
+ Daniel Egger        <egger@suse.de>
+ --
+
+ LICENSE
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Library General Public License for more details.
+
+ You should have received a copy of the GNU Library General Public
+ License along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 #import "BTDriverManager.h"
 #import "BTMacros.h"
 #import "stylus.h"
 #import "BTScreenManager.h"
+#import "Logging.h"
+
 //#include <CarbonCore/CarbonCore.h>
 
 #include <CoreFoundation/CoreFoundation.h>
@@ -135,9 +170,9 @@ void theDeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSende
 
 void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IOHIDReportType inReportType,
         uint32_t reportID, uint8_t *inReport, CFIndex length) {
-    //we don't care about anything else, because we want to move to transactions anyhow.
-    [[BTDriverManager shared] didReceiveReport:(uint8_t *) inReport withID:reportID];
-
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+        [[BTDriverManager shared] didReceiveReport:(uint8_t *) inReport withID:reportID];
+    });
 }
 
 //////////////////////////////////////////////////////////////
@@ -182,7 +217,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 
 - (void)initializeScreenSettings
 {
-    NSLog(@"initializing screen seettings");
+    LogInfo(@"initializing screen seettings");
     self.tabletMapping = CGRectMake(bostoSettings.tabletOffsetX, bostoSettings.tabletOffestY, bostoSettings.tabletWidth, bostoSettings.tabletHeight);
     self.screenManager = [[BTScreenManager alloc] init];
     [self.screenManager updateDisplaysBoundsWithDisplayId:bostoSettings.displayID]; //TODO - allow users to provide an override for this
@@ -195,7 +230,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 
 - (void)initializeHID
 {
-    NSLog(@"initializing HID device");
+    LogInfo(@"initializing HID device");
     self.hidManager = IOHIDManagerCreate(kIOHIDOptionsTypeNone, 0);
 
     CFNumberRef vendorID = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &bostoSettings.vendorID);
@@ -218,26 +253,26 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 
     if (ioReturn == kIOReturnSuccess)
     {
-        NSLog(@"Connectred to manager. Registering callbacks");
+        LogInfo(@"Connectred to manager. Registering callbacks");
 
         IOHIDManagerRegisterDeviceRemovalCallback(self.hidManager, theDeviceRemovalCallback, NULL);
         IOHIDManagerRegisterDeviceMatchingCallback(self.hidManager, theDeviceMatchingCallback, NULL);
 
         IOHIDManagerScheduleWithRunLoop(self.hidManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
-        NSLog(@"opening HID service");
+        LogInfo(@"opening HID service");
         ioReturn = [self openHIDService];
         if (ioReturn == kIOReturnSuccess)
         {
             [self initializeStylus];
         } else
         {
-            NSLog(@"error opening HID service");
+            LogWarn(@"error opening HID service");
         }
 
     } else
     {
-        NSLog(@"could not open the hid manager");
+        LogWarn(@"could not open the hid manager");
         //TODO error messaging
     }
 
@@ -259,17 +294,21 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
                 kr = IOServiceOpen(service, mach_task_self(), kIOHIDParamConnectType, &ev);
                 IOObjectRelease(service);
 
-                if (KERN_SUCCESS == kr) {
+                if (KERN_SUCCESS == kr)
+                {
                     self.gEventDriver = ev;
-                    NSLog(@"created global event driver");
-                } else {
-                    NSLog(@"error opening service");
+                    LogInfo(@"created global event driver");
+                } else
+                {
+                    LogWarn(@"error opening service");
                 }
-            } else {
-                NSLog(@"error opning port");
+            } else
+            {
+                LogWarn(@"error opning port");
             }
-        } else {
-            NSLog (@"error closing port before opening");
+        } else
+        {
+            LogWarn (@"error closing port before opening");
         }
     }
 
@@ -392,7 +431,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 {
     IOHIDDeviceUnscheduleFromRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     self.currentDeviceRef = NULL;
-    NSLog(@"tablet removed - cleaned up references");
+    LogInfo(@"tablet removed - cleaned up references");
 }
 
 - (void)didConnectDevice:(IOHIDDeviceRef)deviceRef withContext:(void *)context result:(IOReturn)result sender:(void *)sender
@@ -407,9 +446,9 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     //TODO check return value
 
 //
-    NSLog(@"tablet connected");
+    LogInfo(@"tablet connected");
     IOHIDDeviceScheduleWithRunLoop(self.currentDeviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-    IOHIDDeviceRegisterInputReportCallback(self.currentDeviceRef, reportBuffer, 512, theInputReportCallback, "hund katze maus");
+    IOHIDDeviceRegisterInputReportCallback(self.currentDeviceRef, reportBuffer, 4096, theInputReportCallback, "hund katze maus");
 
 }
 
@@ -495,7 +534,7 @@ int fromBinary(char *s) {
             index++;
         }
     }
-    //NSLog([self bitStringWithArray:allBits length:8*8]);
+    //LogInfo([self bitStringWithArray:allBits length:8*8]);
     //through trial and error I found that x starts at bit 15, and y at bit 31 - they are both 16 bits.
 
     tipPressure = report[6] | report[7] << 8;
@@ -504,7 +543,7 @@ int fromBinary(char *s) {
     xCoord = fromBinary([xString UTF8String]);
     yCoord = fromBinary([yString UTF8String]);
 
-   // NSLog(@"update %d/%d, pres : %d off_tab xbits %@, ybits %@", xCoord, yCoord, tipPressure, xString, yString);
+    // LogVerbose(@"update %d/%d, pres : %d off_tab xbits %@, ybits %@", xCoord, yCoord, tipPressure, xString, yString);
 
     // Remember the old position for tracking relative motion
     _stylus.old.x = _stylus.point.x;
@@ -518,9 +557,17 @@ int fromBinary(char *s) {
     _stylus.motion.x = _stylus.point.x - _stylus.old.x;
     _stylus.motion.y = _stylus.point.y - _stylus.old.y; // point und old werden in tablet koordinaten Ã¼bertragen
 
+    //TODO look at dampening
     // tablet events are scaled to 0xFFFF (16 bit), so
     // a little shift to the right is needed
-    _stylus.pressure = tipPressure << 7;
+    //we also dampen the shift based on pressure
+    if (tipPressure < 512)
+    {
+        _stylus.pressure = tipPressure << 5;
+    } else
+    {
+        _stylus.pressure = tipPressure << 7;
+    }
 
     // reconstruct the button state
     if (allBits[8] && !allBits[9])
@@ -530,8 +577,8 @@ int fromBinary(char *s) {
 
     if (allBits[9])
     {
-        bm |= kBitStylusButton1;
-//        bm |= kBitStylusButton2; //not sure if it counts as button 2?
+//        bm |= kBitStylusButton1;
+        bm |= kBitStylusButton2; //not sure if it counts as button 2?
     }
 
     // set the button state in the current stylus state
@@ -540,7 +587,7 @@ int fromBinary(char *s) {
     _stylus.off_tablet = !allBits[12];
 
 
-    NSLog(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
+    //LogVerbose(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
 
     // set the button state in the current stylus state
     SetButtons(bm);
@@ -552,10 +599,10 @@ int fromBinary(char *s) {
     static bool dragState = false;
 
     CGPoint mappedPoint = [self.screenManager mapTabletCoordinatesToDisplaySpaceWithPoint:CGPointMake(_stylus.point.x, _stylus.point.y)
-                                                    toTabletMapping:self.tabletMapping];
+                                                                          toTabletMapping:self.tabletMapping];
     _stylus.scrPos.x = mappedPoint.x;
     _stylus.scrPos.y = mappedPoint.y;
-    NSLog(@"[[[[mapped pos %d,%d to %f,%f", _stylus.point.x, _stylus.point.y, mappedPoint.x, mappedPoint.y);
+//    LogVerbose(@"[[[[mapped pos %d,%d to %f,%f", _stylus.point.x, _stylus.point.y, mappedPoint.x, mappedPoint.y);
 
     // Map Stylus buttons to system buttons
     bzero(buttonState, sizeof(buttonState));
@@ -574,7 +621,7 @@ int fromBinary(char *s) {
     {
         [self postNXEventwithType:buttonEvent
                           subType:NX_SUBTYPE_TABLET_PROXIMITY otherButton:0];
-        NSLog(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
+        LogVerbose(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
         _oldStylus.off_tablet = _stylus.off_tablet;
     }
 
@@ -624,7 +671,7 @@ int fromBinary(char *s) {
                               subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
 
             isEventPosted = true;
-            NSLog(@"Drag %sed", dragState ? "Start" : "End");
+            LogVerbose(@"Drag %sed", dragState ? "Start" : "End");
         }
     }
 
@@ -634,7 +681,7 @@ int fromBinary(char *s) {
         if (dragState && !buttonState[kSystemButton1])
         {
             dragState = false;
-            NSLog(@"Drag Canceled");
+            LogVerbose(@"Drag Canceled");
         }
 
         if (!dragState)
@@ -657,7 +704,7 @@ int fromBinary(char *s) {
     // Has the stylus changed position?
     if (!isEventPosted && (_oldStylus.point.x != _stylus.point.x || _oldStylus.point.y != _stylus.point.y))
     {
-        NSLog(@"position changed");
+        LogVerbose(@"[Point event]");
         [self postNXEventwithType:buttonEvent
                           subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
 
@@ -683,7 +730,7 @@ int fromBinary(char *s) {
     {
         case NX_OMOUSEUP:
         case NX_OMOUSEDOWN:
-            NSLog(@"[mouseup event]");
+            LogVerbose(@"[mouseup event]");
             eventData.mouse.click = 0;
             eventData.mouse.buttonNumber = otherButton;
             break;
@@ -693,11 +740,13 @@ int fromBinary(char *s) {
         case NX_RMOUSEDOWN:
         case NX_RMOUSEUP:
         case NX_LMOUSEUP:
-            NSLog(@"[mousedown event]");
+            LogVerbose(@"[mousedown event]");
             eventData.mouse.pressure = 0;
             eventData.mouse.subType = eventSubType;
             eventData.mouse.subx = 0;
             eventData.mouse.suby = 0;
+            eventData.mouse.buttonNumber = 1;
+
             switch (eventSubType)
             {
                 case NX_SUBTYPE_TABLET_POINT:
@@ -721,10 +770,10 @@ int fromBinary(char *s) {
         case NX_MOUSEMOVED:
         case NX_LMOUSEDRAGGED:
         case NX_RMOUSEDRAGGED:
-            NSLog(@"[Drag event]");
+            LogVerbose(@"[Drag event]");
             bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
             bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(_stylus.proximity));
-
+            eventData.mouse.buttonNumber = 1;
             eventData.mouseMove.subType = eventSubType;
             switch (eventSubType)
             {
@@ -761,23 +810,45 @@ int fromBinary(char *s) {
             break;
     }
 
-//    eventData.mouseMove.tablet.point.tangentialPressure = 1;
-//    eventData.mouseMove.tablet.point.pressure = 1;// stylus.pressure * 20000;
-
     bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
     bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(_stylus.proximity));
 
+    eventData.mouseMove.tablet.point.pressure = _stylus.pressure;
+
     // Generate the tablet event to the system event driver
     IOGPoint newPoint = {_stylus.scrPos.x, _stylus.scrPos.y};
-    NSLog(@"[POSTING] pos: %d,%d, eventdata.pressure %d cap mask %d", newPoint.x, newPoint.y, eventData.mouseMove.tablet.point.pressure, eventData.mouseMove.tablet.proximity.capabilityMask);
-    (void) IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &eventData, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
+    LogVerbose(@"[POSTING] pos: %d,%d, eventdata.pressure %d(s.pressure) %d cap mask %d", newPoint.x, newPoint.y, eventData.mouseMove.tablet.point.pressure, _stylus.pressure, eventData.mouseMove.tablet.proximity.capabilityMask);
+
+    if (NO && eventType == NX_LMOUSEDOWN)
+    {
+
+        NSEvent *dragEvent = [NSEvent mouseEventWithType:eventType
+                                                location:NSMakePoint(newPoint.x, newPoint.y)
+                                           modifierFlags:0
+                                               timestamp:[[NSDate date] timeIntervalSince1970]
+                                            windowNumber:0
+                                                 context:nil eventNumber:0
+                                              clickCount:1
+                                                pressure:_stylus.pressure];
+        CGEventRef cgEvent = [dragEvent CGEvent];
+        CGEventPost(kCGHIDEventTap, cgEvent);
+
+
+    } else
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+            (void) IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &eventData, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
+        });
+    }
 
     // we always post a proximity event individually
     if (eventSubType == NX_SUBTYPE_TABLET_PROXIMITY)
     {
-        NSLog(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
+        LogVerbose(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
         bcopy(&_stylus.proximity, &eventData.proximity, sizeof(NXTabletProximityData));
-        (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+            (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
+        });
     }
 }
 
@@ -811,26 +882,26 @@ int fromBinary(char *s) {
 //////////////////////////////////////////////////////////////
 
 
-    //debugging to help us work out the report bytes (it seems that the bytes are somewhat up the spout on their input report
-    //I'm leaving debug code in here (commented out)in case others have slightly different bosto monitors
+//debugging to help us work out the report bytes (it seems that the bytes are somewhat up the spout on their input report
+//I'm leaving debug code in here (commented out)in case others have slightly different bosto monitors
 //this was in init
 //    [NSEvent addGlobalMonitorForEventsMatchingMask:(NSKeyUpMask) handler:^(NSEvent *event) {
 //        if (event.keyCode == 126)
 //        {
 //            self.testStartBit++;
-//            NSLog(@"testStartBit now %d", self.testStartBit);
+//            LogVerbose(@"testStartBit now %d", self.testStartBit);
 //        } else if (event.keyCode == 125)
 //        {
 //            self.testStartBit--;
-//            NSLog(@"testStartBit now %d", self.testStartBit);
+//            LogVerbose(@"testStartBit now %d", self.testStartBit);
 //        } else if (event.keyCode == 124)
 //        {
 //            self.numberOfTestBits++;
-//            NSLog(@"numbits now %d", self.numberOfTestBits);
+//            LogVerbose(@"numbits now %d", self.numberOfTestBits);
 //        } else if (event.keyCode == 123)
 //        {
 //            self.numberOfTestBits--;
-//            NSLog(@"numberOfTestBits now %d", self.numberOfTestBits);
+//            LogVerbose(@"numberOfTestBits now %d", self.numberOfTestBits);
 //        }
 //    }];
 
@@ -871,7 +942,7 @@ int fromBinary(char *s) {
     int reversedValue = fromBinary([reversedBitString UTF8String]);
 
     tipPressure = report[6] | report[7] << 8;
-    NSLog(@"start %d: %d (%@), altX %d (%@)", self.testStartBit, xCoord, bitString, reversedValue, reversedBitString);
+    LogVerbose(@"start %d: %d (%@), altX %d (%@)", self.testStartBit, xCoord, bitString, reversedValue, reversedBitString);
 
 */
 

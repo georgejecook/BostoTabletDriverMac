@@ -37,6 +37,7 @@
 
 /* Begin PBXFileReference section */
 		17364081840EC291CC14AAC2 /* BostoTablet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BostoTablet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		173640E4BD6CD8E32752C542 /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		17364187C9AFB2369B347087 /* BTAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BTAppDelegate.h; sourceTree = "<group>"; };
 		17364196BC7F4DBF8E589AE7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		173641FBAADCB94AB01E5C41 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -163,6 +164,7 @@
 				173648D4FD3AC4A03771A959 /* BTAppDelegate.m */,
 				17364187C9AFB2369B347087 /* BTAppDelegate.h */,
 				173643E61D67D596147B2AE1 /* BTMacros.h */,
+				173640E4BD6CD8E32752C542 /* Logging.h */,
 			);
 			path = Application;
 			sourceTree = "<group>";
