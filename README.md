@@ -1,7 +1,7 @@
 BostoTabletDriverMac
 ====================
 
-unofficial Tablet Driver for Bosto tablets on mac.
+Unofficial Tablet Driver for Bosto tablets on mac.
 
 The bosto tablet is a wonderful cheap cintiq clone ([http://bosto-tablet.com](http://bosto-tablet.com)). However, it only has driver support for windows.
 
