@@ -1,4 +1,4 @@
-#import "BackgroundView.h"
+#import "BTBackgroundView.h"
 
 #define FILL_OPACITY 0.95f
 #define STROKE_OPACITY 1.0f
@@ -10,7 +10,7 @@
 
 #pragma mark -
 
-@implementation BackgroundView
+@implementation BTBackgroundView
 
 @synthesize arrowX = _arrowX;
 

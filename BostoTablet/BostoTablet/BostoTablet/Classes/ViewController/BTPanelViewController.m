@@ -1,7 +1,7 @@
-#import "PanelViewController.h"
-#import "BackgroundView.h"
-#import "StatusItemView.h"
-#import "MenubarController.h"
+#import "BTPanelViewController.h"
+#import "BTBackgroundView.h"
+#import "BTStatusItemView.h"
+#import "BTMenubarController.h"
 
 #define OPEN_DURATION .15
 #define CLOSE_DURATION .1
@@ -14,7 +14,10 @@
 
 #pragma mark -
 
-@implementation PanelViewController
+@implementation BTPanelViewController
+{
+    BOOL _hasActivePanel;
+}
 
 @synthesize backgroundView = _backgroundView;
 @synthesize delegate = _delegate;
@@ -120,7 +123,7 @@
     NSRect screenRect = [[[NSScreen screens] objectAtIndex:0] frame];
     NSRect statusRect = NSZeroRect;
 
-    StatusItemView *statusItemView = nil;
+    BTStatusItemView *statusItemView = nil;
     if ([self.delegate respondsToSelector:@selector(statusItemViewForPanelController:)])
     {
         statusItemView = [self.delegate statusItemViewForPanelController:self];

@@ -39,8 +39,8 @@
 
 #import "BTAppDelegate.h"
 #import "BTDriverManager.h"
-#import "MenubarController.h"
-#import "PanelViewController.h"
+#import "BTMenubarController.h"
+#import "BTPanelViewController.h"
 
 @implementation BTAppDelegate
 
@@ -53,7 +53,7 @@
     // Insert code here to initialize your application
     NSLog(@"created driver manager %@", [BTDriverManager shared]);
     // Install icon into the menu bar
-    self.menubarController = [[MenubarController alloc] init];
+    self.menubarController = [[BTMenubarController alloc] init];
 
 }
 
@@ -100,11 +100,11 @@ void *kContextActivePanel = &kContextActivePanel;
 
 #pragma mark - Public accessors
 
-- (PanelViewController *)panelController
+- (BTPanelViewController *)panelController
 {
     if (_panelController == nil)
     {
-        _panelController = [[PanelViewController alloc] initWithDelegate:self];
+        _panelController = [[BTPanelViewController alloc] initWithDelegate:self];
         [_panelController addObserver:self forKeyPath:@"hasActivePanel" options:0 context:kContextActivePanel];
     }
     return _panelController;
@@ -112,7 +112,7 @@ void *kContextActivePanel = &kContextActivePanel;
 
 #pragma mark - PanelControllerDelegate
 
-- (StatusItemView *)statusItemViewForPanelController:(PanelViewController *)controller
+- (BTStatusItemView *)statusItemViewForPanelController:(BTPanelViewController *)controller
 {
     return self.menubarController.statusItemView;
 }

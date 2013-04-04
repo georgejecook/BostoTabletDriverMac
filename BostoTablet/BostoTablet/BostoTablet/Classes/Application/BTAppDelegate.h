@@ -38,16 +38,17 @@
 */
 
 #import <Cocoa/Cocoa.h>
+#import "BTPanelViewController.h"
 
-@class MenubarController;
-@class PanelViewController;
+@class BTMenubarController;
+@class BTPanelViewController;
 
-@interface BTAppDelegate : NSObject <NSApplicationDelegate>
+@interface BTAppDelegate : NSObject <NSApplicationDelegate, PanelControllerDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
 
-@property (nonatomic, strong) MenubarController *menubarController;
-@property (nonatomic, strong, readonly) PanelViewController *panelController;
+@property (nonatomic, strong) BTMenubarController *menubarController;
+@property (nonatomic, strong, readonly) BTPanelViewController *panelController;
 
 - (IBAction)togglePanel:(id)sender;
 

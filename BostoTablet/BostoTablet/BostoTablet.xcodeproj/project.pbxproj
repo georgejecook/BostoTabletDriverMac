@@ -7,15 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1736403CC1271BF313C19D61 /* MenubarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736408578B491D13AFA6084 /* MenubarController.m */; };
+		1736403CC1271BF313C19D61 /* BTMenubarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736408578B491D13AFA6084 /* BTMenubarController.m */; };
 		1736410C4392CAA90D6D7144 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17364B8E14D17D0FB6E85C73 /* Cocoa.framework */; };
 		1736412A947BE5ED03EC4771 /* Status@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 17364D51974230DF6C1E41A6 /* Status@2x.png */; };
-		173641603DCFBB8C4DF52D98 /* BackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364BCB949AC406EDA5C6E0 /* BackgroundView.m */; };
+		173641603DCFBB8C4DF52D98 /* BTBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */; };
 		1736417AE66CE58BA2F377AA /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 17364DE66697B9483A281494 /* MainMenu.xib */; };
 		173641A1A95B201B930676A9 /* BostoTabletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364E3791FBA216E725567C /* BostoTabletTests.m */; };
-		173641FEB61D10534FD46E05 /* PanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* PanelView.m */; };
+		173641FEB61D10534FD46E05 /* BTPanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* BTPanelView.m */; };
 		1736427A062656912A189B38 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1736451F3DCEB16888DB5A06 /* SenTestingKit.framework */; };
-		173642E7E778CBEB45C88223 /* BackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364BCB949AC406EDA5C6E0 /* BackgroundView.m */; };
+		173642E7E778CBEB45C88223 /* BTBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */; };
 		1736437B3415A24BFAEB69B8 /* BTDriverManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364FF7F62CC5126E77A0DC /* BTDriverManager.m */; };
 		173643A5F166D64284467CB4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364923EF230A93D3012FE5 /* main.m */; };
 		1736448FAAB9F207329808A8 /* StatusHighlighted.png in Resources */ = {isa = PBXBuildFile; fileRef = 173648912D6C81B1592F4186 /* StatusHighlighted.png */; };
@@ -25,25 +25,25 @@
 		173645FC68326F183D6879C9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17364B8E14D17D0FB6E85C73 /* Cocoa.framework */; };
 		17364662C665EB5253223A94 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 173649C40A0349F01E4CE64F /* Credits.rtf */; };
 		1736468F8C6F68DEDC531DB6 /* Status@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 17364D51974230DF6C1E41A6 /* Status@2x.png */; };
-		173646E3FCCBD7C551325A7E /* StatusItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173642455A96C9BBCB8DE6CD /* StatusItemView.m */; };
+		173646E3FCCBD7C551325A7E /* BTStatusItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */; };
 		1736471CCE7208ABB2171CDD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17364B1682DC1A3110F806F2 /* CoreFoundation.framework */; };
 		173647A3C991526D81F568C6 /* tablet.png in Resources */ = {isa = PBXBuildFile; fileRef = 17364F7D2B6B464E520C18E8 /* tablet.png */; };
 		173648600C97FC5EAEFF0E55 /* BTScreenManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736422539D5899F83F4C7B0 /* BTScreenManager.m */; };
 		1736493169F2C70419BF6708 /* StatusHighlighted.png in Resources */ = {isa = PBXBuildFile; fileRef = 173648912D6C81B1592F4186 /* StatusHighlighted.png */; };
-		17364947E456D4FBB3E92556 /* MenubarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736408578B491D13AFA6084 /* MenubarController.m */; };
+		17364947E456D4FBB3E92556 /* BTMenubarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736408578B491D13AFA6084 /* BTMenubarController.m */; };
 		173649692162D8F4913A7EEE /* BTDriverManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364FF7F62CC5126E77A0DC /* BTDriverManager.m */; };
 		1736499DACE9D1AF89B4ACA1 /* StatusHighlighted@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1736469D387911CBBF84A398 /* StatusHighlighted@2x.png */; };
-		17364A013639AD68846D3C60 /* StatusItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173642455A96C9BBCB8DE6CD /* StatusItemView.m */; };
+		17364A013639AD68846D3C60 /* BTStatusItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */; };
 		17364AC9C57A275BAB943FAE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 17364EEC9D61A3CBBEBF8DD5 /* InfoPlist.strings */; };
 		17364B08E4E1ECD66A00AE67 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17364B47701F1666F770E4F1 /* IOKit.framework */; };
 		17364B40E64500590E704258 /* tablet.png in Resources */ = {isa = PBXBuildFile; fileRef = 17364F7D2B6B464E520C18E8 /* tablet.png */; };
 		17364B5FBD90F738FADA42F3 /* bosto header.gif in Resources */ = {isa = PBXBuildFile; fileRef = 17364C849FC27B3715B4E6EA /* bosto header.gif */; };
 		17364C871C43609A6F4AB56B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1736458C24B07E7A609D5615 /* InfoPlist.strings */; };
-		17364D02AB550E78EE7FF58C /* PanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* PanelViewController.m */; };
+		17364D02AB550E78EE7FF58C /* BTPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* BTPanelViewController.m */; };
 		17364DE3C3EEC18DC82B609E /* bosto header.gif in Resources */ = {isa = PBXBuildFile; fileRef = 17364C849FC27B3715B4E6EA /* bosto header.gif */; };
-		17364DF02FE59CD8782CE37B /* PanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* PanelViewController.m */; };
+		17364DF02FE59CD8782CE37B /* BTPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* BTPanelViewController.m */; };
 		17364F2F4F0AF827422D2847 /* Status.png in Resources */ = {isa = PBXBuildFile; fileRef = 173649BA67F3B2B8AE34D265 /* Status.png */; };
-		17364F8F57F33BB1AD785A6B /* PanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* PanelView.m */; };
+		17364F8F57F33BB1AD785A6B /* BTPanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* BTPanelView.m */; };
 		17364FB8B110F4C74270AC43 /* BTAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 173648D4FD3AC4A03771A959 /* BTAppDelegate.m */; };
 		E133B3D5170DAAAE002B9E4A /* Panel.xib in Resources */ = {isa = PBXBuildFile; fileRef = E133B3D3170DAAAE002B9E4A /* Panel.xib */; };
 /* End PBXBuildFile section */
@@ -60,27 +60,27 @@
 
 /* Begin PBXFileReference section */
 		17364081840EC291CC14AAC2 /* BostoTablet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BostoTablet.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		1736408578B491D13AFA6084 /* MenubarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenubarController.m; sourceTree = "<group>"; };
+		1736408578B491D13AFA6084 /* BTMenubarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTMenubarController.m; sourceTree = "<group>"; };
 		173640E4BD6CD8E32752C542 /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		17364187C9AFB2369B347087 /* BTAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BTAppDelegate.h; sourceTree = "<group>"; };
 		17364196BC7F4DBF8E589AE7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		173641FBAADCB94AB01E5C41 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		1736422539D5899F83F4C7B0 /* BTScreenManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTScreenManager.m; sourceTree = "<group>"; };
-		173642455A96C9BBCB8DE6CD /* StatusItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatusItemView.m; sourceTree = "<group>"; };
+		173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTStatusItemView.m; sourceTree = "<group>"; };
 		17364272328A83878653C375 /* BostoTablet-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = "BostoTablet-Info.plist"; sourceTree = "<group>"; };
 		17364380ECC281BFBE380026 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		173643E61D67D596147B2AE1 /* BTMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTMacros.h; sourceTree = "<group>"; };
-		1736446647E65A93ECC3F1AD /* PanelViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PanelViewController.m; sourceTree = "<group>"; };
+		1736446647E65A93ECC3F1AD /* BTPanelViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTPanelViewController.m; sourceTree = "<group>"; };
 		1736448B620CD9D6CB6DBCAC /* BostoTabletTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BostoTabletTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
-		173644D9298787920F4346EE /* PanelView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanelView.h; sourceTree = "<group>"; };
+		173644D9298787920F4346EE /* BTPanelView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTPanelView.h; sourceTree = "<group>"; };
 		173644E8A16BF9B3B5C5AB67 /* BTScreenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTScreenManager.h; sourceTree = "<group>"; };
 		1736451F3DCEB16888DB5A06 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		173645280884FDC56218622B /* PanelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PanelView.m; sourceTree = "<group>"; };
+		173645280884FDC56218622B /* BTPanelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTPanelView.m; sourceTree = "<group>"; };
 		1736458FCCFF73CCB363ACC2 /* BostoTabletTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BostoTabletTests.h; sourceTree = "<group>"; };
 		1736467C80D3E50BB1901D9C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		17364699E091842B3C29A97C /* BostoTablet-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BostoTablet-Prefix.pch"; sourceTree = "<group>"; };
 		1736469D387911CBBF84A398 /* StatusHighlighted@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StatusHighlighted@2x.png"; sourceTree = "<group>"; };
-		1736473F07DBC8A9A07C10A0 /* MenubarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenubarController.h; sourceTree = "<group>"; };
+		1736473F07DBC8A9A07C10A0 /* BTMenubarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTMenubarController.h; sourceTree = "<group>"; };
 		173648912D6C81B1592F4186 /* StatusHighlighted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = StatusHighlighted.png; sourceTree = "<group>"; };
 		173648D4FD3AC4A03771A959 /* BTAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BTAppDelegate.m; sourceTree = "<group>"; };
 		17364923EF230A93D3012FE5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -90,17 +90,17 @@
 		17364B47701F1666F770E4F1 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		17364B69A074685A1A871F07 /* BostoTabletTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = "BostoTabletTests-Info.plist"; sourceTree = "<group>"; };
 		17364B8E14D17D0FB6E85C73 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		17364BCB949AC406EDA5C6E0 /* BackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundView.m; sourceTree = "<group>"; };
+		17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTBackgroundView.m; sourceTree = "<group>"; };
 		17364BDA3281E924E6D4B7B1 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		17364C2FC60BA870A7CAC805 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		17364C849FC27B3715B4E6EA /* bosto header.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "bosto header.gif"; sourceTree = "<group>"; };
 		17364D51974230DF6C1E41A6 /* Status@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Status@2x.png"; sourceTree = "<group>"; };
 		17364E3791FBA216E725567C /* BostoTabletTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BostoTabletTests.m; sourceTree = "<group>"; };
-		17364F31A209A43F866169AD /* PanelViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanelViewController.h; sourceTree = "<group>"; };
+		17364F31A209A43F866169AD /* BTPanelViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTPanelViewController.h; sourceTree = "<group>"; };
 		17364F4DCABF3DA3B9E5ABD2 /* BTDriverManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDriverManager.h; sourceTree = "<group>"; };
-		17364F67A363FBE1CECBD6AC /* StatusItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatusItemView.h; sourceTree = "<group>"; };
+		17364F67A363FBE1CECBD6AC /* BTStatusItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTStatusItemView.h; sourceTree = "<group>"; };
 		17364F7D2B6B464E520C18E8 /* tablet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tablet.png; sourceTree = "<group>"; };
-		17364FEA2AA2FEF15569AE62 /* BackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundView.h; sourceTree = "<group>"; };
+		17364FEA2AA2FEF15569AE62 /* BTBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTBackgroundView.h; sourceTree = "<group>"; };
 		17364FF7F62CC5126E77A0DC /* BTDriverManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTDriverManager.m; sourceTree = "<group>"; };
 		17364FFAA0D90997DA518049 /* stylus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stylus.h; sourceTree = "<group>"; };
 		E133B3D4170DAAAE002B9E4A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Panel.xib; sourceTree = "<group>"; };
@@ -205,10 +205,10 @@
 		17364C34479BD53CE04CBECD /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				1736446647E65A93ECC3F1AD /* PanelViewController.m */,
-				17364F31A209A43F866169AD /* PanelViewController.h */,
-				1736473F07DBC8A9A07C10A0 /* MenubarController.h */,
-				1736408578B491D13AFA6084 /* MenubarController.m */,
+				1736446647E65A93ECC3F1AD /* BTPanelViewController.m */,
+				17364F31A209A43F866169AD /* BTPanelViewController.h */,
+				1736473F07DBC8A9A07C10A0 /* BTMenubarController.h */,
+				1736408578B491D13AFA6084 /* BTMenubarController.m */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -282,12 +282,12 @@
 		17364FA5D698661D82FD464A /* View */ = {
 			isa = PBXGroup;
 			children = (
-				17364FEA2AA2FEF15569AE62 /* BackgroundView.h */,
-				173642455A96C9BBCB8DE6CD /* StatusItemView.m */,
-				17364F67A363FBE1CECBD6AC /* StatusItemView.h */,
-				173645280884FDC56218622B /* PanelView.m */,
-				173644D9298787920F4346EE /* PanelView.h */,
-				17364BCB949AC406EDA5C6E0 /* BackgroundView.m */,
+				17364FEA2AA2FEF15569AE62 /* BTBackgroundView.h */,
+				173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */,
+				17364F67A363FBE1CECBD6AC /* BTStatusItemView.h */,
+				173645280884FDC56218622B /* BTPanelView.m */,
+				173644D9298787920F4346EE /* BTPanelView.h */,
+				17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -412,11 +412,11 @@
 				173641A1A95B201B930676A9 /* BostoTabletTests.m in Sources */,
 				173649692162D8F4913A7EEE /* BTDriverManager.m in Sources */,
 				173648600C97FC5EAEFF0E55 /* BTScreenManager.m in Sources */,
-				173646E3FCCBD7C551325A7E /* StatusItemView.m in Sources */,
-				17364F8F57F33BB1AD785A6B /* PanelView.m in Sources */,
-				173641603DCFBB8C4DF52D98 /* BackgroundView.m in Sources */,
-				17364D02AB550E78EE7FF58C /* PanelViewController.m in Sources */,
-				17364947E456D4FBB3E92556 /* MenubarController.m in Sources */,
+				173646E3FCCBD7C551325A7E /* BTStatusItemView.m in Sources */,
+				17364F8F57F33BB1AD785A6B /* BTPanelView.m in Sources */,
+				173641603DCFBB8C4DF52D98 /* BTBackgroundView.m in Sources */,
+				17364D02AB550E78EE7FF58C /* BTPanelViewController.m in Sources */,
+				17364947E456D4FBB3E92556 /* BTMenubarController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,11 +428,11 @@
 				17364FB8B110F4C74270AC43 /* BTAppDelegate.m in Sources */,
 				1736437B3415A24BFAEB69B8 /* BTDriverManager.m in Sources */,
 				17364527983BF8686D60A3BA /* BTScreenManager.m in Sources */,
-				17364A013639AD68846D3C60 /* StatusItemView.m in Sources */,
-				173641FEB61D10534FD46E05 /* PanelView.m in Sources */,
-				173642E7E778CBEB45C88223 /* BackgroundView.m in Sources */,
-				17364DF02FE59CD8782CE37B /* PanelViewController.m in Sources */,
-				1736403CC1271BF313C19D61 /* MenubarController.m in Sources */,
+				17364A013639AD68846D3C60 /* BTStatusItemView.m in Sources */,
+				173641FEB61D10534FD46E05 /* BTPanelView.m in Sources */,
+				173642E7E778CBEB45C88223 /* BTBackgroundView.m in Sources */,
+				17364DF02FE59CD8782CE37B /* BTPanelViewController.m in Sources */,
+				1736403CC1271BF313C19D61 /* BTMenubarController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

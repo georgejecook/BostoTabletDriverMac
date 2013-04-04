@@ -1,6 +1,6 @@
-#import "PanelView.h"
+#import "BTPanelView.h"
 
-@implementation PanelView
+@implementation BTPanelView
 
 - (BOOL)canBecomeKeyWindow;
 {

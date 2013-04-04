@@ -37,7 +37,7 @@
 		</object>
 		<array class="NSMutableArray" key="IBDocument.RootObjects" id="1000">
 			<object class="NSCustomObject" id="1001">
-				<string key="NSClassName">PanelViewController</string>
+				<string key="NSClassName">BTPanelViewController</string>
 			</object>
 			<object class="NSCustomObject" id="1003">
 				<string key="NSClassName">FirstResponder</string>
@@ -51,7 +51,7 @@
 				<string key="NSWindowRect">{{139, 81}, {449, 346}}</string>
 				<int key="NSWTFlags">1685586944</int>
 				<string key="NSWindowTitle">Window</string>
-				<string key="NSWindowClass">PanelView</string>
+				<string key="NSWindowClass">BTPanelView</string>
 				<nil key="NSViewClass"/>
 				<nil key="NSUserInterfaceItemIdentifier"/>
 				<object class="NSView" key="NSWindowView" id="627132493">
@@ -767,7 +767,7 @@
 				<string key="10.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="11.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="12.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
-				<string key="2.CustomClassName">BackgroundView</string>
+				<string key="2.CustomClassName">BTBackgroundView</string>
 				<string key="2.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="26.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="29.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -804,38 +804,38 @@
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<object class="IBPartialClassDescription">
-					<string key="className">BackgroundView</string>
+					<string key="className">BTBackgroundView</string>
 					<string key="superclassName">NSView</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/BackgroundView.h</string>
+						<string key="minorKey">./Classes/BTBackgroundView.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">PanelView</string>
+					<string key="className">BTPanelView</string>
 					<string key="superclassName">NSPanel</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PanelView.h</string>
+						<string key="minorKey">./Classes/BTPanelView.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">PanelViewController</string>
+					<string key="className">BTPanelViewController</string>
 					<string key="superclassName">NSWindowController</string>
 					<object class="NSMutableDictionary" key="outlets">
 						<string key="NS.key.0">backgroundView</string>
-						<string key="NS.object.0">BackgroundView</string>
+						<string key="NS.object.0">BTBackgroundView</string>
 					</object>
 					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
 						<string key="NS.key.0">backgroundView</string>
 						<object class="IBToOneOutletInfo" key="NS.object.0">
 							<string key="name">backgroundView</string>
-							<string key="candidateClassName">BackgroundView</string>
+							<string key="candidateClassName">BTBackgroundView</string>
 						</object>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PanelViewController.h</string>
+						<string key="minorKey">./Classes/BTPanelViewController.h</string>
 					</object>
 				</object>
 			</array>

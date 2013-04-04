@@ -1,0 +1,2 @@
+@interface BTPanelView : NSPanel
+@end
