@@ -1,0 +1,2 @@
+@interface PanelView : NSPanel
+@end

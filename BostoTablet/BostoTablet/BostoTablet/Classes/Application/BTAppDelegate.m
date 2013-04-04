@@ -39,14 +39,83 @@
 
 #import "BTAppDelegate.h"
 #import "BTDriverManager.h"
+#import "MenubarController.h"
+#import "PanelViewController.h"
 
 @implementation BTAppDelegate
+
+@synthesize panelController = _panelController;
+@synthesize menubarController = _menubarController;
+
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     // Insert code here to initialize your application
     NSLog(@"created driver manager %@", [BTDriverManager shared]);
+    // Install icon into the menu bar
+    self.menubarController = [[MenubarController alloc] init];
 
 }
+
+
+#pragma mark -
+
+- (void)dealloc
+{
+    [_panelController removeObserver:self forKeyPath:@"hasActivePanel"];
+}
+
+#pragma mark -
+
+void *kContextActivePanel = &kContextActivePanel;
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if (context == kContextActivePanel)
+    {
+        self.menubarController.hasActiveIcon = self.panelController.hasActivePanel;
+    }
+    else
+    {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+#pragma mark - NSApplicationDelegate
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
+{
+    // Explicitly remove the icon from the menu bar
+    self.menubarController = nil;
+    return NSTerminateNow;
+}
+
+#pragma mark - Actions
+
+- (IBAction)togglePanel:(id)sender
+{
+    self.menubarController.hasActiveIcon = !self.menubarController.hasActiveIcon;
+    self.panelController.hasActivePanel = self.menubarController.hasActiveIcon;
+}
+
+#pragma mark - Public accessors
+
+- (PanelViewController *)panelController
+{
+    if (_panelController == nil)
+    {
+        _panelController = [[PanelViewController alloc] initWithDelegate:self];
+        [_panelController addObserver:self forKeyPath:@"hasActivePanel" options:0 context:kContextActivePanel];
+    }
+    return _panelController;
+}
+
+#pragma mark - PanelControllerDelegate
+
+- (StatusItemView *)statusItemViewForPanelController:(PanelViewController *)controller
+{
+    return self.menubarController.statusItemView;
+}
+
 
 @end
