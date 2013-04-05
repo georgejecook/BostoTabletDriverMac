@@ -254,6 +254,24 @@
     [self.testPadView clearDisplay];
 }
 
+- (IBAction)didClickGithubHyperlink:(id)sender
+{
+    [[NSWorkspace sharedWorkspace] openFile:@"https://github.com/georgejecook/BostoTabletDriverMac"];
+}
+
+- (IBAction)didClickRefresh:(id)sender
+{
+    [[BTDriverManager shared] reinitialize];
+}
+
+- (IBAction)didClickQuit:(id)sender
+{
+    [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0];
+}
+
+
+
+
 
 //////////////////////////////////////////////////////////////
 #pragma mark combobox delegate methods

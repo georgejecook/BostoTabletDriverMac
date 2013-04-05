@@ -29,17 +29,21 @@
 		173646E3FCCBD7C551325A7E /* BTStatusItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */; };
 		1736471CCE7208ABB2171CDD /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17364B1682DC1A3110F806F2 /* CoreFoundation.framework */; };
 		173647A3C991526D81F568C6 /* tablet.png in Resources */ = {isa = PBXBuildFile; fileRef = 17364F7D2B6B464E520C18E8 /* tablet.png */; };
+		1736482BAFE53BA89D8581DC /* georgejecook.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 173641F086D2EDB734FA3165 /* georgejecook.jpeg */; };
 		173648600C97FC5EAEFF0E55 /* BTScreenManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736422539D5899F83F4C7B0 /* BTScreenManager.m */; };
 		1736493169F2C70419BF6708 /* StatusHighlighted.png in Resources */ = {isa = PBXBuildFile; fileRef = 173648912D6C81B1592F4186 /* StatusHighlighted.png */; };
 		17364947E456D4FBB3E92556 /* BTMenubarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736408578B491D13AFA6084 /* BTMenubarController.m */; };
 		173649692162D8F4913A7EEE /* BTDriverManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364FF7F62CC5126E77A0DC /* BTDriverManager.m */; };
+		17364986DCC5A909A8D1D356 /* refreshButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 173649FFEF5A752CB0CE5BEF /* refreshButton.png */; };
 		1736499DACE9D1AF89B4ACA1 /* StatusHighlighted@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1736469D387911CBBF84A398 /* StatusHighlighted@2x.png */; };
 		17364A013639AD68846D3C60 /* BTStatusItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */; };
 		17364AC9C57A275BAB943FAE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 17364EEC9D61A3CBBEBF8DD5 /* InfoPlist.strings */; };
 		17364B08E4E1ECD66A00AE67 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17364B47701F1666F770E4F1 /* IOKit.framework */; };
 		17364B40E64500590E704258 /* tablet.png in Resources */ = {isa = PBXBuildFile; fileRef = 17364F7D2B6B464E520C18E8 /* tablet.png */; };
 		17364B5FBD90F738FADA42F3 /* bosto header.gif in Resources */ = {isa = PBXBuildFile; fileRef = 17364C849FC27B3715B4E6EA /* bosto header.gif */; };
+		17364B6AA74F361272254E5C /* refreshButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 173649FFEF5A752CB0CE5BEF /* refreshButton.png */; };
 		17364C871C43609A6F4AB56B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1736458C24B07E7A609D5615 /* InfoPlist.strings */; };
+		17364CF0F99EAF6E9DAE016B /* georgejecook.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 173641F086D2EDB734FA3165 /* georgejecook.jpeg */; };
 		17364D02AB550E78EE7FF58C /* BTPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* BTPanelViewController.m */; };
 		17364DE3C3EEC18DC82B609E /* bosto header.gif in Resources */ = {isa = PBXBuildFile; fileRef = 17364C849FC27B3715B4E6EA /* bosto header.gif */; };
 		17364DF02FE59CD8782CE37B /* BTPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* BTPanelViewController.m */; };
@@ -66,6 +70,7 @@
 		173640E4BD6CD8E32752C542 /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		17364187C9AFB2369B347087 /* BTAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BTAppDelegate.h; sourceTree = "<group>"; };
 		17364196BC7F4DBF8E589AE7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		173641F086D2EDB734FA3165 /* georgejecook.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = georgejecook.jpeg; sourceTree = "<group>"; };
 		173641FBAADCB94AB01E5C41 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		1736422539D5899F83F4C7B0 /* BTScreenManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTScreenManager.m; sourceTree = "<group>"; };
 		173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTStatusItemView.m; sourceTree = "<group>"; };
@@ -88,6 +93,7 @@
 		173648D4FD3AC4A03771A959 /* BTAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BTAppDelegate.m; sourceTree = "<group>"; };
 		17364923EF230A93D3012FE5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		173649BA67F3B2B8AE34D265 /* Status.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Status.png; sourceTree = "<group>"; };
+		173649FFEF5A752CB0CE5BEF /* refreshButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = refreshButton.png; sourceTree = "<group>"; };
 		17364B1682DC1A3110F806F2 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		17364B173454460E34DEB15D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		17364B47701F1666F770E4F1 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
@@ -192,6 +198,8 @@
 				173649BA67F3B2B8AE34D265 /* Status.png */,
 				17364D51974230DF6C1E41A6 /* Status@2x.png */,
 				173648912D6C81B1592F4186 /* StatusHighlighted.png */,
+				173641F086D2EDB734FA3165 /* georgejecook.jpeg */,
+				173649FFEF5A752CB0CE5BEF /* refreshButton.png */,
 			);
 			path = Images;
 			sourceTree = "<group>";
@@ -375,6 +383,8 @@
 				17364F2F4F0AF827422D2847 /* Status.png in Resources */,
 				1736412A947BE5ED03EC4771 /* Status@2x.png in Resources */,
 				1736493169F2C70419BF6708 /* StatusHighlighted.png in Resources */,
+				17364CF0F99EAF6E9DAE016B /* georgejecook.jpeg in Resources */,
+				17364986DCC5A909A8D1D356 /* refreshButton.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,6 +399,8 @@
 				1736449C53A73CD1DC1EAEE8 /* Status.png in Resources */,
 				1736468F8C6F68DEDC531DB6 /* Status@2x.png in Resources */,
 				1736448FAAB9F207329808A8 /* StatusHighlighted.png in Resources */,
+				1736482BAFE53BA89D8581DC /* georgejecook.jpeg in Resources */,
+				17364B6AA74F361272254E5C /* refreshButton.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

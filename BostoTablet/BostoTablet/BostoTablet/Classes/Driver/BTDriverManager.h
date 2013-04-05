@@ -46,5 +46,8 @@ extern NSString *const kBTDriverManagerDidChangeStatus; //listen to this if you 
 + (BTDriverManager *)shared;
 
 @property(readonly) BOOL isConnected;
+
+- (void)reinitialize;
+
 @property(nonatomic, assign) float pressureDamping; // 0.5 is normal, < 0.5 == stronger lines, > 0.5 = weaker lines
 @end

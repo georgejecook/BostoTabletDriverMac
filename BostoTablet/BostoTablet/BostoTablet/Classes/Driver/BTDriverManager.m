@@ -975,4 +975,18 @@ int fromBinary(char *s) {
 }
 
 
+- (void)reinitialize
+{
+    LogInfo(@"Reinitializing driver");
+    if (self.currentDeviceRef){
+        LogInfo(@"Device was connected, emulating device remove");
+        [self didRemoveDevice:self.currentDeviceRef
+                  withContext:nil
+                       result:nil
+                       sender:nil];
+    }
+    [self closeHIDService];
+    [self initializeHID];
+
+}
 @end

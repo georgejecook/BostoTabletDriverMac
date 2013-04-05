@@ -34,5 +34,9 @@
 
 - (IBAction)didChangePressureSlider:(id)sender;
 - (IBAction)didClickClearTestPad:(id)sender;
+- (IBAction)didClickGithubHyperlink:(id)sender;
+- (IBAction)didClickRefresh:(id)sender;
+- (IBAction)didClickQuit:(id)sender;
+
 
 @end
