@@ -6,6 +6,6 @@
 #import <Foundation/Foundation.h>
 
 
-@interface CustomCursorButton : NSButton
+@interface BTCustomCursorButton : NSButton
 @property (nonatomic, strong) NSCursor *cursor;
 @end

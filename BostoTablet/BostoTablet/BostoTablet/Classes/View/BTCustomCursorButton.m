@@ -3,10 +3,10 @@
 //
 //  Copyright (c) 2012 Twin Technologies LLC. All rights reserved.
 //
-#import "CustomCursorButton.h"
+#import "BTCustomCursorButton.h"
 
 
-@implementation CustomCursorButton
+@implementation BTCustomCursorButton
 - (void)resetCursorRects
 {
     if (self.cursor) {

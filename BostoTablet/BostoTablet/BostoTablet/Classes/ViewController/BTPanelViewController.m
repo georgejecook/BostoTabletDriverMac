@@ -5,7 +5,7 @@
 #import "BTScreenManager.h"
 #import "BTDriverManager.h"
 #import "BTTestPadView.h"
-#import "CustomCursorButton.h"
+#import "BTCustomCursorButton.h"
 
 #define OPEN_DURATION .15
 #define CLOSE_DURATION .1

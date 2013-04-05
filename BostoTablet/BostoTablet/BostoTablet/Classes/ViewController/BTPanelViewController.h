@@ -3,7 +3,7 @@
 
 @class BTPanelViewController;
 @class BTTestPadView;
-@class CustomCursorButton;
+@class BTCustomCursorButton;
 
 @protocol PanelControllerDelegate <NSObject>
 
@@ -24,9 +24,9 @@
 @property(nonatomic, weak) IBOutlet NSComboBox *displaysCombo;
 @property(nonatomic, weak) IBOutlet NSSlider *pressureSlider;
 @property(nonatomic, weak) IBOutlet BTTestPadView *testPadView;
-@property(nonatomic, weak) IBOutlet CustomCursorButton *refreshButton;
-@property(nonatomic, weak) IBOutlet CustomCursorButton *georgeButton;
-@property(nonatomic, weak) IBOutlet CustomCursorButton *githubLinkButton;
+@property(nonatomic, weak) IBOutlet BTCustomCursorButton *refreshButton;
+@property(nonatomic, weak) IBOutlet BTCustomCursorButton *georgeButton;
+@property(nonatomic, weak) IBOutlet BTCustomCursorButton *githubLinkButton;
 
 @property (nonatomic) BOOL hasActivePanel;
 @property (nonatomic, weak, readonly) id<PanelControllerDelegate> delegate;
