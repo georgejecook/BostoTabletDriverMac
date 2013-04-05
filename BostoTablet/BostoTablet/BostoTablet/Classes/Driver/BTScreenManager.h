@@ -38,17 +38,17 @@
 */
 #import <Foundation/Foundation.h>
 
+extern NSString *const kBTScreenManagerDidChangeScreenDetails; //dispatched when the targetScreen, or screens change
+
 
 @interface BTScreenManager : NSObject
 
 @property(nonatomic, assign) CGRect screenMapping;
 @property(nonatomic) CGRect screenBounds;
+@property(nonatomic, strong) NSScreen *targetScreen; //the screen we will use for the mapping
 
 - (CGPoint)mapTabletCoordinatesToDisplaySpaceWithPoint:(CGPoint)point toTabletMapping:(CGRect)tabletMapping;
 
-/**
-* pass -1 to use the tablet on ALL displays,
-* or pass the displayID of the tablet to just use that display
-*/
-- (void)updateDisplaysBoundsWithDisplayId:(int)displayID;
++ (BTScreenManager *)shared;
+
 @end

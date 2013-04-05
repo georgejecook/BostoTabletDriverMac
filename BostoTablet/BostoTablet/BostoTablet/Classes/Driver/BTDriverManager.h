@@ -40,8 +40,10 @@
 
 @class BTScreenManager;
 
+extern NSString *const kBTDriverManagerDidChangeStatus; //listen to this if you want to know the status
 
 @interface BTDriverManager : NSObject
 + (BTDriverManager *)shared;
 
+@property(readonly) BOOL isConnected;
 @end

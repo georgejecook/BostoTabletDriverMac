@@ -58,6 +58,8 @@
 #include <IOKit/usb/IOUSBLib.h>
 #include <IOKit/hidsystem/IOHIDShared.h>
 
+NSString *const kBTDriverManagerDidChangeStatus = @"BTDriverManagerDidChangeStatus";
+
 //////////////////////////////////////////////////////////////
 #pragma mark tablet defines
 //////////////////////////////////////////////////////////////
@@ -182,6 +184,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 @implementation BTDriverManager
 {
 
+    BOOL _isConnected;
 }
 
 //////////////////////////////////////////////////////////////
@@ -194,6 +197,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
         return [[self alloc] init];
     });
 }
+
 
 
 //////////////////////////////////////////////////////////////
@@ -219,8 +223,8 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 {
     LogInfo(@"initializing screen seettings");
     self.tabletMapping = CGRectMake(bostoSettings.tabletOffsetX, bostoSettings.tabletOffestY, bostoSettings.tabletWidth, bostoSettings.tabletHeight);
-    self.screenManager = [[BTScreenManager alloc] init];
-    [self.screenManager updateDisplaysBoundsWithDisplayId:bostoSettings.displayID]; //TODO - allow users to provide an override for this
+    self.screenManager = [BTScreenManager shared];
+    //TODO not sure about the screenmapping anymore.
     self.screenManager.screenMapping = CGRectMake(bostoSettings.screenOffsetX, bostoSettings.screenOffsetY, bostoSettings.screenWidth, bostoSettings.screenHeight);
 }
 
@@ -432,6 +436,8 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     IOHIDDeviceUnscheduleFromRunLoop(deviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     self.currentDeviceRef = NULL;
     LogInfo(@"tablet removed - cleaned up references");
+    _isConnected = NO;
+    [[NSNotificationCenter defaultCenter] postNotificationName:kBTDriverManagerDidChangeStatus object:self];
 }
 
 - (void)didConnectDevice:(IOHIDDeviceRef)deviceRef withContext:(void *)context result:(IOReturn)result sender:(void *)sender
@@ -449,7 +455,8 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     LogInfo(@"tablet connected");
     IOHIDDeviceScheduleWithRunLoop(self.currentDeviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     IOHIDDeviceRegisterInputReportCallback(self.currentDeviceRef, reportBuffer, 4096, theInputReportCallback, "hund katze maus");
-
+    _isConnected = YES;
+    [[NSNotificationCenter defaultCenter] postNotificationName:kBTDriverManagerDidChangeStatus object:self];
 }
 
 
@@ -946,6 +953,15 @@ int fromBinary(char *s) {
 
 */
 
+
+//////////////////////////////////////////////////////////////
+#pragma mark public api 
+//////////////////////////////////////////////////////////////
+
+- (BOOL)isConnected
+{
+    return NO;
+}
 
 
 @end

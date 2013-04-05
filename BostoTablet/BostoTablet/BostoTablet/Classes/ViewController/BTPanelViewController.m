@@ -2,13 +2,15 @@
 #import "BTBackgroundView.h"
 #import "BTStatusItemView.h"
 #import "BTMenubarController.h"
+#import "BTScreenManager.h"
+#import "BTDriverManager.h"
 
 #define OPEN_DURATION .15
 #define CLOSE_DURATION .1
 
 #define SEARCH_INSET 17
 
-#define POPUP_HEIGHT 349
+#define POPUP_HEIGHT 368
 #define PANEL_WIDTH 449
 #define MENU_ANIMATION_DURATION .1
 
@@ -22,7 +24,9 @@
 @synthesize backgroundView = _backgroundView;
 @synthesize delegate = _delegate;
 
-#pragma mark -
+//////////////////////////////////////////////////////////////
+#pragma mark lifecycle
+//////////////////////////////////////////////////////////////
 
 - (id)initWithDelegate:(id <PanelControllerDelegate>)delegate
 {
@@ -30,15 +34,33 @@
     if (self != nil)
     {
         _delegate = delegate;
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector (didChangeScreenDetails:)
+                                                     name:kBTScreenManagerDidChangeScreenDetails
+                                                   object:nil];
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector (didChangeDriverStatus:)
+                                                     name:kBTDriverManagerDidChangeStatus
+                                                   object:nil];
+
     }
     return self;
 }
 
-- (void)dealloc
+- (void)didChangeScreenParameters:(id)didChangeScreenParameters
 {
+    [self.displaysCombo reloadData];
+    //self.displaysCombo.indexOfSelectedItem = 1;
 }
 
-#pragma mark -
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter]
+                           removeObserver:self name:kBTScreenManagerDidChangeScreenDetails object:nil];
+    [[NSNotificationCenter defaultCenter]
+                           removeObserver:self name:kBTDriverManagerDidChangeStatus object:nil];
+}
 
 - (void)awakeFromNib
 {
@@ -56,9 +78,17 @@
     panelRect.size.height = POPUP_HEIGHT;
     [[self window] setFrame:panelRect display:NO];
 
+    self.displaysCombo.dataSource = self;
+    self.displaysCombo.delegate = self;
+    [self didChangeScreenDetails:nil];
+    [self didChangeDriverStatus:nil];
 }
 
-#pragma mark - Public accessors
+//////////////////////////////////////////////////////////////
+#pragma mark public accessors
+//////////////////////////////////////////////////////////////
+
+
 
 - (BOOL)hasActivePanel
 {
@@ -82,7 +112,9 @@
     }
 }
 
-#pragma mark - NSWindowDelegate
+//////////////////////////////////////////////////////////////
+#pragma mark NSWindowDelegate impl
+//////////////////////////////////////////////////////////////
 
 - (void)windowWillClose:(NSNotification *)notification
 {
@@ -109,14 +141,18 @@
     self.backgroundView.arrowX = panelX;
 }
 
-#pragma mark - Keyboard
+//////////////////////////////////////////////////////////////
+#pragma mark keyboard
+//////////////////////////////////////////////////////////////
 
 - (void)cancelOperation:(id)sender
 {
     self.hasActivePanel = NO;
 }
 
-#pragma mark - Public methods
+//////////////////////////////////////////////////////////////
+#pragma mark public api
+//////////////////////////////////////////////////////////////
 
 - (NSRect)statusRectForWindow:(NSWindow *)window
 {
@@ -200,5 +236,67 @@
         [self.window orderOut:nil];
     });
 }
+
+//////////////////////////////////////////////////////////////
+#pragma mark actions
+//////////////////////////////////////////////////////////////
+
+- (IBAction)didChangePressureSlider:(id)sender
+{
+
+}
+
+- (IBAction)didClickClearTestPad:(id)sender
+{
+
+}
+
+
+//////////////////////////////////////////////////////////////
+#pragma mark combobox delegate methods
+//////////////////////////////////////////////////////////////
+
+- (void)comboBoxSelectionDidChange:(NSNotification *)notification
+{
+    //TODO -set the screenmanager
+    NSScreen *screen = [[NSScreen screens] objectAtIndex:[self.displaysCombo indexOfSelectedItem]];
+    [BTScreenManager shared].targetScreen = screen;
+}
+
+- (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox
+{
+    return [NSScreen screens].count;
+}
+
+- (id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index
+{
+    NSScreen *screen = [NSScreen screens][index];
+    NSSize screenSize = [screen.deviceDescription[@"NSDeviceSize"] sizeValue];
+
+    NSNumber *screenNumber = screen.deviceDescription[@"NSScreenNumber"];
+    return [NSString stringWithFormat:@"%@ (id:%@)", NSStringFromSize(screenSize), screenNumber];
+}
+
+//////////////////////////////////////////////////////////////
+#pragma mark notifications 
+//////////////////////////////////////////////////////////////
+
+- (void)didChangeDriverStatus:(id)didChangeScreenDetails{
+    self.statusLabel.stringValue = [BTDriverManager shared].isConnected ? @"Connected" : @"Not Connected";
+}
+
+- (void)didChangeScreenDetails:(id)didChangeScreenDetails
+{
+    [self.displaysCombo reloadData];
+    NSScreen *targetScreen = [BTScreenManager shared].targetScreen;
+    if (targetScreen)
+    {
+        NSInteger index = [[NSScreen screens] indexOfObject:targetScreen];
+        [self.displaysCombo selectItemAtIndex:index];
+    } else {
+        [self.displaysCombo deselectItemAtIndex:self.displaysCombo.indexOfSelectedItem];
+    }
+}
+
 
 @end

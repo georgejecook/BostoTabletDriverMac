@@ -37,7 +37,10 @@
  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 #import "BTScreenManager.h"
+#import "BTMacros.h"
 
+
+NSString *const kBTScreenManagerDidChangeScreenDetails = @"BTScreenManagerDidChangeScreenDetails";
 
 @interface BTScreenManager ()
 @end
@@ -46,12 +49,96 @@
 {
 
 }
+//////////////////////////////////////////////////////////////
+#pragma mark - singleton impl
+//////////////////////////////////////////////////////////////
+
++ (BTScreenManager *)shared
+{
+    DEFINE_SHARED_INSTANCE_USING_BLOCK(^{
+        return [[self alloc] init];
+    });
+}
+
+
+
+//////////////////////////////////////////////////////////////
+#pragma mark lifecycle
+//////////////////////////////////////////////////////////////
+
+- (id)init
+{
+    self = [super init];
+    if (self)
+    {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector (didChangeScreenParameters:)
+                                                     name:NSApplicationDidChangeScreenParametersNotification
+                                                   object:nil];
+
+        //TODO look in the defaults to see if there is one saved..
+        self.targetScreen = [self bestScreenToUseAsTargetScreen];
+    }
+
+    return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter]
+            removeObserver:self name:NSApplicationDidChangeScreenParametersNotification object:nil];
+}
+
+//////////////////////////////////////////////////////////////
+#pragma mark actions
+//////////////////////////////////////////////////////////////
+
+- (void)didChangeScreenParameters:(id)didChangeScreenParameters
+{
+    if (self.targetScreen != nil && ![[NSScreen screens] containsObject:self.targetScreen]){
+        self.targetScreen = [self bestScreenToUseAsTargetScreen];
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:kBTScreenManagerDidChangeScreenDetails object:self];
+}
+
+//////////////////////////////////////////////////////////////
+#pragma mark public accessors
+//////////////////////////////////////////////////////////////
+
+- (void)setTargetScreen:(NSScreen *)targetScreen
+{
+    _targetScreen = targetScreen;
+    NSSize screenSize = [targetScreen.deviceDescription[@"NSDeviceSize"] sizeValue];
+    self.screenBounds = CGRectMake(targetScreen.frame.origin.x, targetScreen.frame.origin.y, screenSize.width, screenSize.height);
+    [[NSNotificationCenter defaultCenter] postNotificationName:kBTScreenManagerDidChangeScreenDetails object:self];
+}
+
+//////////////////////////////////////////////////////////////
+#pragma mark private impl
+//////////////////////////////////////////////////////////////
+
+- (NSScreen *)bestScreenToUseAsTargetScreen
+{
+    //TODO find a way to identify the bosto screen - for now assuming it's not the main display in a multi display setup
+    //if more than one display is present, we might have to do something else...
+    if ([NSScreen screens].count == 1){
+        return [NSScreen mainScreen];
+    }
+    for (NSScreen *screen in [NSScreen screens]){
+        if (screen != [NSScreen mainScreen]) {
+            return screen;
+        }
+    }
+    return nil;
+}
+
 
 //////////////////////////////////////////////////////////////
 #pragma mark public api
 //////////////////////////////////////////////////////////////
 
-- (CGPoint)mapTabletCoordinatesToDisplaySpaceWithPoint:(CGPoint)point toTabletMapping:(CGRect)tabletMapping{
+- (CGPoint)mapTabletCoordinatesToDisplaySpaceWithPoint:(CGPoint)point toTabletMapping:(CGRect)tabletMapping
+{
     CGFloat swide = _screenMapping.size.width, shigh = _screenMapping.size.height,
             twide = tabletMapping.size.width, thigh = tabletMapping.size.height;
 
@@ -85,54 +172,7 @@
     return CGPointMake(nx + _screenBounds.origin.x, ny + _screenBounds.origin.y);
 }
 
-- (void)updateDisplaysBoundsWithDisplayId:(int)displayID {
-    //	CGRect				activeDisplaysBounds;
-    CGDirectDisplayID *displays;
-    CGDisplayCount numDisplays;
-    CGDisplayCount i;
-    CGDisplayErr err;
-    bool result = false;
-
-    //TODO - we need to find the location of the monitor screen in multi screen setups
-
-    self.screenBounds = CGRectMake(0.0, 0.0, 0.0, 0.0);
-
-    err = CGGetActiveDisplayList(0, NULL, &numDisplays);
-
-    if (err == CGDisplayNoErr && numDisplays > 0)
-    {
-        displays = (CGDirectDisplayID *) malloc(numDisplays * sizeof(CGDirectDisplayID));
-
-        if (NULL != displays)
-        {
-            err = CGGetActiveDisplayList(numDisplays, displays, &numDisplays);
-
-            if (err == CGDisplayNoErr)
-            {
-
-                if (displayID == -1 || numDisplays < displayID)
-                {
-                    for (i = 0; i < numDisplays; i++)
-                        self.screenBounds = CGRectUnion(self.screenBounds, CGDisplayBounds(displays[i]));
-                }
-                else
-                {
-                    self.screenBounds = CGDisplayBounds(displays[displayID]);
-                }
-            }
-
-
-            free(displays);
-            result = true;
-        }
-    }
-
-    exit:
-    NSLog(@"Screen Boundary: %.2f, %.2f - %.2f, %.2f\n", self.screenBounds.origin.x, self.screenBounds.origin.y,
-            self.screenBounds.size.width, self.screenBounds.size.height);
-}
-
--(void)setScreenMapping:(CGRect )value
+- (void)setScreenMapping:(CGRect)value
 {
     SInt16 mappedWidth;
     SInt16 mappedHeight;
@@ -201,7 +241,7 @@
     );
 
     NSLog(@"Updated Screen Mapping: %.2f, %.2f - %.2f, %.2f\n", _screenMapping.origin.x, _screenMapping.origin.y,
-    _screenMapping.size.width, _screenMapping.size.height);
+            _screenMapping.size.width, _screenMapping.size.height);
 }
 
 @end

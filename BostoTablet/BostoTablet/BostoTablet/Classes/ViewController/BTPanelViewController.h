@@ -13,11 +13,14 @@
 
 #pragma mark -
 
-@interface BTPanelViewController : NSWindowController <NSWindowDelegate>
+@interface BTPanelViewController : NSWindowController <NSWindowDelegate, NSComboBoxDelegate, NSComboBoxDataSource>
 {
 }
 
 @property (nonatomic, weak) IBOutlet BTBackgroundView *backgroundView;
+@property(nonatomic, weak) IBOutlet NSTextField *statusLabel;
+@property(nonatomic, weak) IBOutlet NSComboBox *displaysCombo;
+@property(nonatomic, weak) IBOutlet NSSlider *pressureSlider;
 
 @property (nonatomic) BOOL hasActivePanel;
 @property (nonatomic, weak, readonly) id<PanelControllerDelegate> delegate;
@@ -26,5 +29,8 @@
 
 - (void)openPanel;
 - (void)closePanel;
+
+- (IBAction)didChangePressureSlider:(id)sender;
+- (IBAction)didClickClearTestPad:(id)sender;
 
 @end
