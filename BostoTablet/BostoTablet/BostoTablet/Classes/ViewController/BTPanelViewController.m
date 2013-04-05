@@ -5,6 +5,7 @@
 #import "BTScreenManager.h"
 #import "BTDriverManager.h"
 #import "BTTestPadView.h"
+#import "CustomCursorButton.h"
 
 #define OPEN_DURATION .15
 #define CLOSE_DURATION .1
@@ -15,7 +16,6 @@
 #define PANEL_WIDTH 449
 #define MENU_ANIMATION_DURATION .1
 
-#pragma mark -
 
 @implementation BTPanelViewController
 {
@@ -85,6 +85,9 @@
     [self didChangeDriverStatus:nil];
 
     self.pressureSlider.floatValue = [BTDriverManager shared].pressureDamping;
+    self.georgeButton.cursor = [NSCursor pointingHandCursor];
+    self.githubLinkButton.cursor = [NSCursor pointingHandCursor];
+    self.refreshButton.cursor = [NSCursor pointingHandCursor];
 }
 
 //////////////////////////////////////////////////////////////
@@ -256,7 +259,9 @@
 
 - (IBAction)didClickGithubHyperlink:(id)sender
 {
-    [[NSWorkspace sharedWorkspace] openFile:@"https://github.com/georgejecook/BostoTabletDriverMac"];
+    [[NSWorkspace sharedWorkspace]
+                  openURL:[[NSURL alloc] initWithString:@"https://github.com/georgejecook/BostoTabletDriverMac"]];
+    self.hasActivePanel = NO;
 }
 
 - (IBAction)didClickRefresh:(id)sender
@@ -268,6 +273,15 @@
 {
     [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0];
 }
+
+- (IBAction)didClickGeorge:(id)sender
+{
+    [[NSWorkspace sharedWorkspace]
+                  openURL:[[NSURL alloc] initWithString:@"http://bo.linkedin.com/in/georgejecook"]];
+    self.hasActivePanel = NO;
+
+}
+
 
 
 
@@ -302,7 +316,8 @@
 #pragma mark notifications 
 //////////////////////////////////////////////////////////////
 
-- (void)didChangeDriverStatus:(id)didChangeScreenDetails{
+- (void)didChangeDriverStatus:(id)didChangeScreenDetails
+{
     self.statusLabel.stringValue = [BTDriverManager shared].isConnected ? @"Connected" : @"Not Connected";
 }
 
@@ -314,7 +329,8 @@
     {
         NSInteger index = [[NSScreen screens] indexOfObject:targetScreen];
         [self.displaysCombo selectItemAtIndex:index];
-    } else {
+    } else
+    {
         [self.displaysCombo deselectItemAtIndex:self.displaysCombo.indexOfSelectedItem];
     }
 }
