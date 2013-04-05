@@ -84,7 +84,7 @@
     [self didChangeScreenDetails:nil];
     [self didChangeDriverStatus:nil];
 
-    self.displaysCombo.floatValue = [BTDriverManager shared].pressureDamping;
+    self.pressureSlider.floatValue = [BTDriverManager shared].pressureDamping;
 }
 
 //////////////////////////////////////////////////////////////

@@ -143,8 +143,10 @@
 
 - (void)clearDisplay
 {
+    [self lockFocus];
     [[NSColor whiteColor] set];
     NSRectFill([self bounds]);
+    [self unlockFocus];
 }
 
 @end
