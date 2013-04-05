@@ -185,6 +185,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 {
 
     BOOL _isConnected;
+    float _pressureMod;
 }
 
 //////////////////////////////////////////////////////////////
@@ -212,9 +213,9 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
         [self initializeHID];
         [self initializeScreenSettings];
     }
-    self.testStartBit = 8;
-    self.numberOfTestBits = 16;
-
+//    self.testStartBit = 8;
+//    self.numberOfTestBits = 16;
+    self.pressureDamping = 0.5; //TODO - read this from preferences
 
     return self;
 }
@@ -550,7 +551,7 @@ int fromBinary(char *s) {
     xCoord = fromBinary([xString UTF8String]);
     yCoord = fromBinary([yString UTF8String]);
 
-    // LogVerbose(@"update %d/%d, pres : %d off_tab xbits %@, ybits %@", xCoord, yCoord, tipPressure, xString, yString);
+    // LogDebug(@"update %d/%d, pres : %d off_tab xbits %@, ybits %@", xCoord, yCoord, tipPressure, xString, yString);
 
     // Remember the old position for tracking relative motion
     _stylus.old.x = _stylus.point.x;
@@ -568,6 +569,7 @@ int fromBinary(char *s) {
     // tablet events are scaled to 0xFFFF (16 bit), so
     // a little shift to the right is needed
     //we also dampen the shift based on pressure
+    tipPressure *= _pressureMod;
     if (tipPressure < 512)
     {
         _stylus.pressure = tipPressure << 5;
@@ -594,7 +596,7 @@ int fromBinary(char *s) {
     _stylus.off_tablet = !allBits[12];
 
 
-    //LogVerbose(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
+    //LogDebug(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
 
     // set the button state in the current stylus state
     SetButtons(bm);
@@ -609,7 +611,7 @@ int fromBinary(char *s) {
                                                                           toTabletMapping:self.tabletMapping];
     _stylus.scrPos.x = mappedPoint.x;
     _stylus.scrPos.y = mappedPoint.y;
-//    LogVerbose(@"[[[[mapped pos %d,%d to %f,%f", _stylus.point.x, _stylus.point.y, mappedPoint.x, mappedPoint.y);
+//    LogDebug(@"[[[[mapped pos %d,%d to %f,%f", _stylus.point.x, _stylus.point.y, mappedPoint.x, mappedPoint.y);
 
     // Map Stylus buttons to system buttons
     bzero(buttonState, sizeof(buttonState));
@@ -628,7 +630,7 @@ int fromBinary(char *s) {
     {
         [self postNXEventwithType:buttonEvent
                           subType:NX_SUBTYPE_TABLET_PROXIMITY otherButton:0];
-        LogVerbose(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
+        LogDebug(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
         _oldStylus.off_tablet = _stylus.off_tablet;
     }
 
@@ -678,7 +680,7 @@ int fromBinary(char *s) {
                               subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
 
             isEventPosted = true;
-            LogVerbose(@"Drag %sed", dragState ? "Start" : "End");
+            LogDebug(@"Drag %sed", dragState ? "Start" : "End");
         }
     }
 
@@ -688,7 +690,7 @@ int fromBinary(char *s) {
         if (dragState && !buttonState[kSystemButton1])
         {
             dragState = false;
-            LogVerbose(@"Drag Canceled");
+            LogDebug(@"Drag Canceled");
         }
 
         if (!dragState)
@@ -711,7 +713,7 @@ int fromBinary(char *s) {
     // Has the stylus changed position?
     if (!isEventPosted && (_oldStylus.point.x != _stylus.point.x || _oldStylus.point.y != _stylus.point.y))
     {
-        LogVerbose(@"[Point event]");
+        LogDebug(@"[Point event]");
         [self postNXEventwithType:buttonEvent
                           subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
 
@@ -737,7 +739,7 @@ int fromBinary(char *s) {
     {
         case NX_OMOUSEUP:
         case NX_OMOUSEDOWN:
-            LogVerbose(@"[mouseup event]");
+            LogDebug(@"[mouseup event]");
             eventData.mouse.click = 0;
             eventData.mouse.buttonNumber = otherButton;
             break;
@@ -747,7 +749,7 @@ int fromBinary(char *s) {
         case NX_RMOUSEDOWN:
         case NX_RMOUSEUP:
         case NX_LMOUSEUP:
-            LogVerbose(@"[mousedown event]");
+            LogDebug(@"[mousedown event]");
             eventData.mouse.pressure = 0;
             eventData.mouse.subType = eventSubType;
             eventData.mouse.subx = 0;
@@ -777,7 +779,7 @@ int fromBinary(char *s) {
         case NX_MOUSEMOVED:
         case NX_LMOUSEDRAGGED:
         case NX_RMOUSEDRAGGED:
-            LogVerbose(@"[Drag event]");
+            LogDebug(@"[Drag event]");
             bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
             bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(_stylus.proximity));
             eventData.mouse.buttonNumber = 1;
@@ -824,7 +826,7 @@ int fromBinary(char *s) {
 
     // Generate the tablet event to the system event driver
     IOGPoint newPoint = {_stylus.scrPos.x, _stylus.scrPos.y};
-    LogVerbose(@"[POSTING] pos: %d,%d, eventdata.pressure %d(s.pressure) %d cap mask %d", newPoint.x, newPoint.y, eventData.mouseMove.tablet.point.pressure, _stylus.pressure, eventData.mouseMove.tablet.proximity.capabilityMask);
+    LogDebug(@"[POSTING] pos: %d,%d, eventdata.pressure %d(s.pressure) %d cap mask %d", newPoint.x, newPoint.y, eventData.mouseMove.tablet.point.pressure, _stylus.pressure, eventData.mouseMove.tablet.proximity.capabilityMask);
 
     if (NO && eventType == NX_LMOUSEDOWN)
     {
@@ -851,7 +853,7 @@ int fromBinary(char *s) {
     // we always post a proximity event individually
     if (eventSubType == NX_SUBTYPE_TABLET_PROXIMITY)
     {
-        LogVerbose(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
+        LogDebug(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
         bcopy(&_stylus.proximity, &eventData.proximity, sizeof(NXTabletProximityData));
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
             (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
@@ -896,19 +898,19 @@ int fromBinary(char *s) {
 //        if (event.keyCode == 126)
 //        {
 //            self.testStartBit++;
-//            LogVerbose(@"testStartBit now %d", self.testStartBit);
+//            LogDebug(@"testStartBit now %d", self.testStartBit);
 //        } else if (event.keyCode == 125)
 //        {
 //            self.testStartBit--;
-//            LogVerbose(@"testStartBit now %d", self.testStartBit);
+//            LogDebug(@"testStartBit now %d", self.testStartBit);
 //        } else if (event.keyCode == 124)
 //        {
 //            self.numberOfTestBits++;
-//            LogVerbose(@"numbits now %d", self.numberOfTestBits);
+//            LogDebug(@"numbits now %d", self.numberOfTestBits);
 //        } else if (event.keyCode == 123)
 //        {
 //            self.numberOfTestBits--;
-//            LogVerbose(@"numberOfTestBits now %d", self.numberOfTestBits);
+//            LogDebug(@"numberOfTestBits now %d", self.numberOfTestBits);
 //        }
 //    }];
 
@@ -949,7 +951,7 @@ int fromBinary(char *s) {
     int reversedValue = fromBinary([reversedBitString UTF8String]);
 
     tipPressure = report[6] | report[7] << 8;
-    LogVerbose(@"start %d: %d (%@), altX %d (%@)", self.testStartBit, xCoord, bitString, reversedValue, reversedBitString);
+    LogDebug(@"start %d: %d (%@), altX %d (%@)", self.testStartBit, xCoord, bitString, reversedValue, reversedBitString);
 
 */
 
@@ -961,6 +963,15 @@ int fromBinary(char *s) {
 - (BOOL)isConnected
 {
     return NO;
+}
+
+- (void)setPressureDamping:(float)pressureDamping
+{
+    _pressureDamping = pressureDamping;
+    _pressureMod = 0.5 - self.pressureDamping;
+    _pressureMod = 1 - _pressureMod;
+    LogInfo(@"pressure damping %f mod is %f", pressureDamping, _pressureMod);
+
 }
 
 

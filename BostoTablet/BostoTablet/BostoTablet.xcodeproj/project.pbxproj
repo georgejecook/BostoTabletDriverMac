@@ -16,6 +16,7 @@
 		173641FEB61D10534FD46E05 /* BTPanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* BTPanelView.m */; };
 		1736427A062656912A189B38 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1736451F3DCEB16888DB5A06 /* SenTestingKit.framework */; };
 		173642E7E778CBEB45C88223 /* BTBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */; };
+		173643583AA8A710F7E29799 /* BTTestPadView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364DAD8607DD8665B8B3F3 /* BTTestPadView.m */; };
 		1736437B3415A24BFAEB69B8 /* BTDriverManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364FF7F62CC5126E77A0DC /* BTDriverManager.m */; };
 		173643A5F166D64284467CB4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364923EF230A93D3012FE5 /* main.m */; };
 		1736448FAAB9F207329808A8 /* StatusHighlighted.png in Resources */ = {isa = PBXBuildFile; fileRef = 173648912D6C81B1592F4186 /* StatusHighlighted.png */; };
@@ -42,6 +43,7 @@
 		17364D02AB550E78EE7FF58C /* BTPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* BTPanelViewController.m */; };
 		17364DE3C3EEC18DC82B609E /* bosto header.gif in Resources */ = {isa = PBXBuildFile; fileRef = 17364C849FC27B3715B4E6EA /* bosto header.gif */; };
 		17364DF02FE59CD8782CE37B /* BTPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* BTPanelViewController.m */; };
+		17364E1A9B1B5FBB06ADA0C1 /* BTTestPadView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364DAD8607DD8665B8B3F3 /* BTTestPadView.m */; };
 		17364F2F4F0AF827422D2847 /* Status.png in Resources */ = {isa = PBXBuildFile; fileRef = 173649BA67F3B2B8AE34D265 /* Status.png */; };
 		17364F8F57F33BB1AD785A6B /* BTPanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* BTPanelView.m */; };
 		17364FB8B110F4C74270AC43 /* BTAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 173648D4FD3AC4A03771A959 /* BTAppDelegate.m */; };
@@ -77,6 +79,7 @@
 		1736451F3DCEB16888DB5A06 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		173645280884FDC56218622B /* BTPanelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTPanelView.m; sourceTree = "<group>"; };
 		1736458FCCFF73CCB363ACC2 /* BostoTabletTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BostoTabletTests.h; sourceTree = "<group>"; };
+		1736464B09AF12E1A61712C8 /* BTTestPadView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTTestPadView.h; sourceTree = "<group>"; };
 		1736467C80D3E50BB1901D9C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		17364699E091842B3C29A97C /* BostoTablet-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BostoTablet-Prefix.pch"; sourceTree = "<group>"; };
 		1736469D387911CBBF84A398 /* StatusHighlighted@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StatusHighlighted@2x.png"; sourceTree = "<group>"; };
@@ -95,6 +98,7 @@
 		17364C2FC60BA870A7CAC805 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		17364C849FC27B3715B4E6EA /* bosto header.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "bosto header.gif"; sourceTree = "<group>"; };
 		17364D51974230DF6C1E41A6 /* Status@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Status@2x.png"; sourceTree = "<group>"; };
+		17364DAD8607DD8665B8B3F3 /* BTTestPadView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTTestPadView.m; sourceTree = "<group>"; };
 		17364E3791FBA216E725567C /* BostoTabletTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BostoTabletTests.m; sourceTree = "<group>"; };
 		17364F31A209A43F866169AD /* BTPanelViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTPanelViewController.h; sourceTree = "<group>"; };
 		17364F4DCABF3DA3B9E5ABD2 /* BTDriverManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDriverManager.h; sourceTree = "<group>"; };
@@ -288,6 +292,8 @@
 				173645280884FDC56218622B /* BTPanelView.m */,
 				173644D9298787920F4346EE /* BTPanelView.h */,
 				17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */,
+				17364DAD8607DD8665B8B3F3 /* BTTestPadView.m */,
+				1736464B09AF12E1A61712C8 /* BTTestPadView.h */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -417,6 +423,7 @@
 				173641603DCFBB8C4DF52D98 /* BTBackgroundView.m in Sources */,
 				17364D02AB550E78EE7FF58C /* BTPanelViewController.m in Sources */,
 				17364947E456D4FBB3E92556 /* BTMenubarController.m in Sources */,
+				17364E1A9B1B5FBB06ADA0C1 /* BTTestPadView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -433,6 +440,7 @@
 				173642E7E778CBEB45C88223 /* BTBackgroundView.m in Sources */,
 				17364DF02FE59CD8782CE37B /* BTPanelViewController.m in Sources */,
 				1736403CC1271BF313C19D61 /* BTMenubarController.m in Sources */,
+				173643583AA8A710F7E29799 /* BTTestPadView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

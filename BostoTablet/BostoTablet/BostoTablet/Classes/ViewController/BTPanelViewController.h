@@ -2,6 +2,7 @@
 #import "BTStatusItemView.h"
 
 @class BTPanelViewController;
+@class BTTestPadView;
 
 @protocol PanelControllerDelegate <NSObject>
 
@@ -21,6 +22,7 @@
 @property(nonatomic, weak) IBOutlet NSTextField *statusLabel;
 @property(nonatomic, weak) IBOutlet NSComboBox *displaysCombo;
 @property(nonatomic, weak) IBOutlet NSSlider *pressureSlider;
+@property(nonatomic, weak) IBOutlet BTTestPadView *testPadView;
 
 @property (nonatomic) BOOL hasActivePanel;
 @property (nonatomic, weak, readonly) id<PanelControllerDelegate> delegate;

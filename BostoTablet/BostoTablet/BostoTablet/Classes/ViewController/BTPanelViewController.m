@@ -4,6 +4,7 @@
 #import "BTMenubarController.h"
 #import "BTScreenManager.h"
 #import "BTDriverManager.h"
+#import "BTTestPadView.h"
 
 #define OPEN_DURATION .15
 #define CLOSE_DURATION .1
@@ -82,6 +83,8 @@
     self.displaysCombo.delegate = self;
     [self didChangeScreenDetails:nil];
     [self didChangeDriverStatus:nil];
+
+    self.displaysCombo.floatValue = [BTDriverManager shared].pressureDamping;
 }
 
 //////////////////////////////////////////////////////////////
@@ -243,12 +246,12 @@
 
 - (IBAction)didChangePressureSlider:(id)sender
 {
-
+    [BTDriverManager shared].pressureDamping = self.pressureSlider.floatValue;
 }
 
 - (IBAction)didClickClearTestPad:(id)sender
 {
-
+    [self.testPadView clearDisplay];
 }
 
 
