@@ -962,7 +962,7 @@ int fromBinary(char *s) {
 
 - (BOOL)isConnected
 {
-    return NO;
+    return _isConnected;
 }
 
 - (void)setPressureDamping:(float)pressureDamping
