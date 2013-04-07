@@ -74,7 +74,6 @@
 		17364187C9AFB2369B347087 /* BTAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BTAppDelegate.h; sourceTree = "<group>"; };
 		17364196BC7F4DBF8E589AE7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		173641F086D2EDB734FA3165 /* georgejecook.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = georgejecook.jpeg; sourceTree = "<group>"; };
-		173641FBAADCB94AB01E5C41 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		1736422539D5899F83F4C7B0 /* BTScreenManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTScreenManager.m; sourceTree = "<group>"; };
 		173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTStatusItemView.m; sourceTree = "<group>"; };
 		17364272328A83878653C375 /* BostoTablet-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = "BostoTablet-Info.plist"; sourceTree = "<group>"; };
@@ -107,6 +106,7 @@
 		17364BDA3281E924E6D4B7B1 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		17364C2FC60BA870A7CAC805 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		17364C849FC27B3715B4E6EA /* bosto header.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "bosto header.gif"; sourceTree = "<group>"; };
+		17364CC3245A64F9DFBF19B2 /* Wacom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Wacom.h; sourceTree = "<group>"; };
 		17364D51974230DF6C1E41A6 /* Status@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Status@2x.png"; sourceTree = "<group>"; };
 		17364DAD8607DD8665B8B3F3 /* BTTestPadView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTTestPadView.m; sourceTree = "<group>"; };
 		17364E3791FBA216E725567C /* BostoTabletTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BostoTabletTests.m; sourceTree = "<group>"; };
@@ -172,6 +172,7 @@
 				17364FFAA0D90997DA518049 /* stylus.h */,
 				1736422539D5899F83F4C7B0 /* BTScreenManager.m */,
 				173644E8A16BF9B3B5C5AB67 /* BTScreenManager.h */,
+				17364CC3245A64F9DFBF19B2 /* Wacom.h */,
 			);
 			path = Driver;
 			sourceTree = "<group>";
@@ -276,7 +277,6 @@
 		17364F0B2539F3FDC02691B0 /* Other Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				173641FBAADCB94AB01E5C41 /* AppKit.framework */,
 				17364B173454460E34DEB15D /* CoreData.framework */,
 				17364196BC7F4DBF8E589AE7 /* Foundation.framework */,
 			);

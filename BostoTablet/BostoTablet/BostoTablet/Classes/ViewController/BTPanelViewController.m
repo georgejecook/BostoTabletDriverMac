@@ -6,6 +6,7 @@
 #import "BTDriverManager.h"
 #import "BTTestPadView.h"
 #import "BTCustomCursorButton.h"
+#import <IOKit/graphics/IOGraphicsLib.h>
 
 #define OPEN_DURATION .15
 #define CLOSE_DURATION .1
@@ -309,7 +310,22 @@
     NSSize screenSize = [screen.deviceDescription[@"NSDeviceSize"] sizeValue];
 
     NSNumber *screenNumber = screen.deviceDescription[@"NSScreenNumber"];
-    return [NSString stringWithFormat:@"%@ (id:%@)", NSStringFromSize(screenSize), screenNumber];
+    NSString *screenName = [self screenNameForDisplay:(CGDirectDisplayID) [screenNumber intValue]];
+    return [NSString stringWithFormat:@"%@ %@ ", screenName ? screenName : screenNumber, NSStringFromSize(screenSize)];
+}
+
+- (NSString*)screenNameForDisplay:(CGDirectDisplayID)displayID
+{
+    NSString *screenName = nil;
+
+    NSDictionary *deviceInfo = (__bridge_transfer NSDictionary *)IODisplayCreateInfoDictionary(CGDisplayIOServicePort(displayID), kIODisplayOnlyPreferredName);
+    NSDictionary *localizedNames = [deviceInfo objectForKey:[NSString stringWithUTF8String:kDisplayProductName]];
+
+    if ([localizedNames count] > 0) {
+    	screenName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]];
+    }
+
+    return screenName;
 }
 
 //////////////////////////////////////////////////////////////

@@ -41,6 +41,7 @@
 #import "stylus.h"
 #import "BTScreenManager.h"
 #import "Logging.h"
+#import "Wacom.h"
 
 //#include <CarbonCore/CarbonCore.h>
 
@@ -63,8 +64,6 @@ NSString *const kBTDriverManagerDidChangeStatus = @"BTDriverManagerDidChangeStat
 //////////////////////////////////////////////////////////////
 #pragma mark tablet defines
 //////////////////////////////////////////////////////////////
-
-#define        kTransducerPressureBitMask                    0x0400
 
 uint8_t switchToTablet[] = {0x02, 0x10, 0x01};
 
@@ -380,11 +379,12 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     _stylus.proximity.tabletID = (UInt16) bostoSettings.productID;
 
     _stylus.proximity.deviceID = 0x81;                // just a single device for now
-    _stylus.proximity.pointerID = 0x03;
+    _stylus.proximity.pointerID = 0;
+    _stylus.proximity.pointerType = EPen;
 
     _stylus.proximity.systemTabletID = 0x00;
 
-    _stylus.proximity.vendorPointerType = 0x0812;    // basic _stylus
+//    _stylus.proximity.vendorPointerType = 0x0802; //0x0812;    // basic _stylus
 
     _stylus.proximity.pointerSerialNumber = 0x00000001;
     _stylus.proximity.reserved1 = 0;
@@ -395,18 +395,25 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     // Indicate which fields in the point event contain valid data. This allows
     // applications to handle devices with varying capabilities.
 
-    _stylus.proximity.capabilityMask =
-            NX_TABLET_CAPABILITY_DEVICEIDMASK
-                    | NX_TABLET_CAPABILITY_ABSXMASK | NX_TABLET_CAPABILITY_ABSYMASK | NX_TABLET_CAPABILITY_BUTTONSMASK
-                    //| NX_TABLET_CAPABILITY_TILTXMASK | NX_TABLET_CAPABILITY_TILTYMASK
-                    | NX_TABLET_CAPABILITY_PRESSUREMASK
+//    _stylus.proximity.capabilityMask =
+//            NX_TABLET_CAPABILITY_DEVICEIDMASK
+//                    | NX_TABLET_CAPABILITY_ABSXMASK | NX_TABLET_CAPABILITY_ABSYMASK | NX_TABLET_CAPABILITY_BUTTONSMASK
+//                    //| NX_TABLET_CAPABILITY_TILTXMASK | NX_TABLET_CAPABILITY_TILTYMASK
+//                    | NX_TABLET_CAPABILITY_PRESSUREMASK
 //                    | NX_TABLET_CAPABILITY_TANGENTIALPRESSUREMASK
-                    | kTransducerPressureBitMask;
-
+//                    | kTransducerPressureBitMask;
+//
 
     //
     // Use Wacom-supplied names
     //
+
+    _stylus.proximity.pointerType = NX_TABLET_POINTER_PEN;
+//    eventData.proximity.capabilityMask = NX_TABLET_CAPABILITY_PRESSUREMASK;
+//    eventData.proximity.capabilityMask = _stylus.proximity.capabilityMask;
+    _stylus.proximity.capabilityMask = kTransducerDeviceIdBitMask | kTransducerAbsXBitMask | kTransducerAbsYBitMask | kTransducerPressureBitMask;
+    _stylus.proximity.vendorPointerType = 0x0802; //0x0812;    // basic _stylus
+
 
     bcopy(&_stylus, &_oldStylus, sizeof(StylusState));
     bzero(buttonState, sizeof(buttonState));
@@ -669,7 +676,7 @@ int fromBinary(char *s) {
         isEventPosted = true;
     }
 
-    //Drag
+    //Drag state change
     if (!buttonState[kSystemClickOrRelease] && oldButtonState[kSystemClickOrRelease])
     {
         dragState = !dragState;
@@ -732,8 +739,6 @@ int fromBinary(char *s) {
 - (void)postNXEventwithType:(int)eventType subType:(SInt16)eventSubType otherButton:(UInt8)otherButton
 {
     static NXEventData eventData;
-    eventData.proximity.pointerType = NX_TABLET_POINTER_PEN;
-    eventData.proximity.capabilityMask = NX_TABLET_CAPABILITY_PRESSUREMASK;
 
     switch (eventType)
     {
