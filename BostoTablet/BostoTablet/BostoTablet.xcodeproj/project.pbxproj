@@ -15,6 +15,7 @@
 		173641A1A95B201B930676A9 /* BostoTabletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364E3791FBA216E725567C /* BostoTabletTests.m */; };
 		173641B66777B2CA1A8CFB05 /* BTCustomCursorButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736467C72ED7CB331AE2C45 /* BTCustomCursorButton.m */; };
 		173641FEB61D10534FD46E05 /* BTPanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* BTPanelView.m */; };
+		17364219972B2F8DA2535D73 /* NSScreen+BTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364FC270A04EACA7EC1C5D /* NSScreen+BTAdditions.m */; };
 		1736427A062656912A189B38 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1736451F3DCEB16888DB5A06 /* SenTestingKit.framework */; };
 		173642E7E778CBEB45C88223 /* BTBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */; };
 		173643583AA8A710F7E29799 /* BTTestPadView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364DAD8607DD8665B8B3F3 /* BTTestPadView.m */; };
@@ -44,6 +45,7 @@
 		17364B5FBD90F738FADA42F3 /* bosto header.gif in Resources */ = {isa = PBXBuildFile; fileRef = 17364C849FC27B3715B4E6EA /* bosto header.gif */; };
 		17364B6AA74F361272254E5C /* refreshButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 173649FFEF5A752CB0CE5BEF /* refreshButton.png */; };
 		17364BB890CBAD9573E031F1 /* BTCustomCursorButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736467C72ED7CB331AE2C45 /* BTCustomCursorButton.m */; };
+		17364C14C67B7FEA617AF767 /* NSScreen+BTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364FC270A04EACA7EC1C5D /* NSScreen+BTAdditions.m */; };
 		17364C871C43609A6F4AB56B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1736458C24B07E7A609D5615 /* InfoPlist.strings */; };
 		17364CF0F99EAF6E9DAE016B /* georgejecook.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 173641F086D2EDB734FA3165 /* georgejecook.jpeg */; };
 		17364D02AB550E78EE7FF58C /* BTPanelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736446647E65A93ECC3F1AD /* BTPanelViewController.m */; };
@@ -92,6 +94,7 @@
 		17364699E091842B3C29A97C /* BostoTablet-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BostoTablet-Prefix.pch"; sourceTree = "<group>"; };
 		1736469D387911CBBF84A398 /* StatusHighlighted@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StatusHighlighted@2x.png"; sourceTree = "<group>"; };
 		1736473F07DBC8A9A07C10A0 /* BTMenubarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTMenubarController.h; sourceTree = "<group>"; };
+		1736489098E6E11D200B9A29 /* NSScreen+BTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScreen+BTAdditions.h"; sourceTree = "<group>"; };
 		173648912D6C81B1592F4186 /* StatusHighlighted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = StatusHighlighted.png; sourceTree = "<group>"; };
 		173648D4FD3AC4A03771A959 /* BTAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BTAppDelegate.m; sourceTree = "<group>"; };
 		17364923EF230A93D3012FE5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -114,6 +117,7 @@
 		17364F4DCABF3DA3B9E5ABD2 /* BTDriverManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTDriverManager.h; sourceTree = "<group>"; };
 		17364F67A363FBE1CECBD6AC /* BTStatusItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTStatusItemView.h; sourceTree = "<group>"; };
 		17364F7D2B6B464E520C18E8 /* tablet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tablet.png; sourceTree = "<group>"; };
+		17364FC270A04EACA7EC1C5D /* NSScreen+BTAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScreen+BTAdditions.m"; sourceTree = "<group>"; };
 		17364FEA2AA2FEF15569AE62 /* BTBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTBackgroundView.h; sourceTree = "<group>"; };
 		17364FF7F62CC5126E77A0DC /* BTDriverManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTDriverManager.m; sourceTree = "<group>"; };
 		17364FFAA0D90997DA518049 /* stylus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stylus.h; sourceTree = "<group>"; };
@@ -237,6 +241,7 @@
 				173644C36E7E91C25AAEDA5F /* Driver */,
 				17364CC2D23022727E3A5F13 /* Application */,
 				17364FA5D698661D82FD464A /* View */,
+				17364CFBB012381BB2AA60D6 /* Categories */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -250,6 +255,15 @@
 				173640E4BD6CD8E32752C542 /* Logging.h */,
 			);
 			path = Application;
+			sourceTree = "<group>";
+		};
+		17364CFBB012381BB2AA60D6 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				17364FC270A04EACA7EC1C5D /* NSScreen+BTAdditions.m */,
+				1736489098E6E11D200B9A29 /* NSScreen+BTAdditions.h */,
+			);
+			path = Categories;
 			sourceTree = "<group>";
 		};
 		17364D535396601F94078F23 /* BostoTabletTests */ = {
@@ -443,6 +457,7 @@
 				17364947E456D4FBB3E92556 /* BTMenubarController.m in Sources */,
 				17364E1A9B1B5FBB06ADA0C1 /* BTTestPadView.m in Sources */,
 				17364BB890CBAD9573E031F1 /* BTCustomCursorButton.m in Sources */,
+				17364219972B2F8DA2535D73 /* NSScreen+BTAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -461,6 +476,7 @@
 				1736403CC1271BF313C19D61 /* BTMenubarController.m in Sources */,
 				173643583AA8A710F7E29799 /* BTTestPadView.m in Sources */,
 				173641B66777B2CA1A8CFB05 /* BTCustomCursorButton.m in Sources */,
+				17364C14C67B7FEA617AF767 /* NSScreen+BTAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

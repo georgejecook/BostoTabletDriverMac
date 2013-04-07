@@ -71,10 +71,6 @@ uint8_t switchToTablet[] = {0x02, 0x10, 0x01};
 #pragma mark button handling 
 //////////////////////////////////////////////////////////////
 
-// button handling is done within a 16 Bit integer used as bit field
-bool buttonState[kSystemClickTypes];        //!< The state of all the system-level buttons
-bool oldButtonState[kSystemClickTypes];    //!< The previous state of all system-level buttons
-
 int button_mapping[] = {kSystemButton1, kSystemButton1, kSystemButton2, kSystemEraser};
 
 #define SetButtons(x)        {_stylus.button_click=((x)!=0); \
@@ -185,6 +181,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 
     BOOL _isConnected;
     float _pressureMod;
+    bool _isDragging;
 }
 
 //////////////////////////////////////////////////////////////
@@ -416,8 +413,6 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 
 
     bcopy(&_stylus, &_oldStylus, sizeof(StylusState));
-    bzero(buttonState, sizeof(buttonState));
-    bzero(oldButtonState, sizeof(oldButtonState));
 }
 
 
@@ -593,12 +588,9 @@ int fromBinary(char *s) {
 
     if (allBits[9])
     {
-//        bm |= kBitStylusButton1;
-        bm |= kBitStylusButton2; //not sure if it counts as button 2?
+        bm |= kBitStylusButton2;
     }
 
-    // set the button state in the current stylus state
-    SetButtons(bm);
 
     _stylus.off_tablet = !allBits[12];
 
@@ -607,12 +599,17 @@ int fromBinary(char *s) {
 
     // set the button state in the current stylus state
     SetButtons(bm);
+//    LogDebug(@"buttonMap : %d", bm);
     [self updateStylusStatus];
 }
 
 - (void)updateStylusStatus
 {
-    static bool dragState = false;
+    BOOL isTipDown = (_stylus.button_mask & kBitStylusTip) == kBitStylusTip;
+    BOOL wasTipDown = (_oldStylus.button_mask & kBitStylusTip) == kBitStylusTip;
+
+    BOOL isRightButtonDown = (_stylus.button_mask & kBitStylusButton2) == kBitStylusButton2;
+    BOOL wasRightButtonDown = (_oldStylus.button_mask & kBitStylusButton2) == kBitStylusButton2;
 
     CGPoint mappedPoint = [self.screenManager mapTabletCoordinatesToDisplaySpaceWithPoint:CGPointMake(_stylus.point.x, _stylus.point.y)
                                                                           toTabletMapping:self.tabletMapping];
@@ -620,25 +617,18 @@ int fromBinary(char *s) {
     _stylus.scrPos.y = mappedPoint.y;
 //    LogDebug(@"[[[[mapped pos %d,%d to %f,%f", _stylus.point.x, _stylus.point.y, mappedPoint.x, mappedPoint.y);
 
-    // Map Stylus buttons to system buttons
-    bzero(buttonState, sizeof(buttonState));
-    _stylus.button[kStylusTip] = _stylus.pressure > 0;
-    buttonState[button_mapping[kStylusTip]] |= _stylus.button[kStylusTip];
-
-    // buttonState[button_mapping[kStylusButton1]] |= _stylus.button[kStylusTip];
-//    buttonState[button_mapping[kStylusButton1]] |= _stylus.button[kStylusButton1];
-
-    int buttonEvent = (dragState || buttonState[kSystemClickOrRelease] || buttonState[kSystemButton1]) ? NX_LMOUSEDRAGGED : (buttonState[kSystemButton2] ? NX_RMOUSEDRAGGED : NX_MOUSEMOVED);
-
     bool isEventPosted = false;
 
     // Has the stylus moved in or out of range?
     if (_oldStylus.off_tablet != _stylus.off_tablet)
     {
-        [self postNXEventwithType:buttonEvent
-                          subType:NX_SUBTYPE_TABLET_PROXIMITY otherButton:0];
+        //TODO experiment to see if proximity is correctly reported
+//        [self postNXEventwithType:buttonEvent
+        [self postNXEventwithType:NX_MOUSEMOVED subType:NX_SUBTYPE_TABLET_PROXIMITY buttonNumber:0];
         LogDebug(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
         _oldStylus.off_tablet = _stylus.off_tablet;
+        _isDragging = NO;
+        isEventPosted = YES;
     }
 
     // TODO - double click processing Is a Double-Click warranted?
@@ -666,69 +656,63 @@ int fromBinary(char *s) {
 //    }
 
     //report a click
-    if (_stylus.pressure == 0 && _oldStylus.pressure != 0)
+//    if (_stylus.pressure == 0 && _oldStylus.pressure != 0)
+    if (!isTipDown && wasTipDown)
     {
-        [self postNXEventwithType:NX_LMOUSEUP subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
+        LogDebug(@">>>mouseUp -drag ended");
+        [self postNXEventwithType:NX_LMOUSEUP subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        _isDragging = NO;
         isEventPosted = true;
-    } else if (_stylus.pressure != 0 && _oldStylus.pressure == 0)
+    } else if (isTipDown && !wasTipDown && !isRightButtonDown)
     {
-        [self postNXEventwithType:NX_LMOUSEDOWN subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
+        LogDebug(@">>>mouseDown");
+        [self postNXEventwithType:NX_LMOUSEDOWN subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        _stylus.motion.x = 0;
+        _stylus.motion.y = 0;
+        isEventPosted = true;
+        _isDragging = NO;
+    }
+
+
+    BOOL isPenMoved = _stylus.motion.x != 0 || _stylus.motion.y != 0;
+    if (!isEventPosted && !_isDragging && isTipDown)
+    {
+        BOOL isMouseMoved = isPenMoved;
+        if (isMouseMoved)
+        {
+            LogDebug(@">>>drag started");
+            _isDragging = YES;
+        }
+    }
+
+    //report right mouse button
+    if (isRightButtonDown != wasRightButtonDown)
+    {
+        LogDebug(@"[Rightmouse evet] %@", isRightButtonDown ? @"down" : @"up");
+        int buttonNumber = isRightButtonDown ? NX_RMOUSEDOWN : NX_RMOUSEUP;
+        [self postNXEventwithType:buttonNumber
+                          subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
         isEventPosted = true;
     }
 
-    //Drag state change
-    if (!buttonState[kSystemClickOrRelease] && oldButtonState[kSystemClickOrRelease])
+    //pointing event
+    if (!isEventPosted && isPenMoved)
     {
-        dragState = !dragState;
-
-        if (!dragState || !buttonState[kSystemButton1])
+        if (_isDragging)
         {
-            [self postNXEventwithType:(dragState ? NX_LMOUSEDOWN : NX_LMOUSEUP)
-                              subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
-
-            isEventPosted = true;
-            LogDebug(@"Drag %sed", dragState ? "Start" : "End");
-        }
-    }
-
-    // Has Button 1 changed?
-    if (oldButtonState[kSystemButton1] != buttonState[kSystemButton1])
-    {
-        if (dragState && !buttonState[kSystemButton1])
+            LogDebug(@"[Drag event]");
+            [self postNXEventwithType:NX_LMOUSEDRAGGED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        } else
         {
-            dragState = false;
-            LogDebug(@"Drag Canceled");
+            LogDebug(@"[Point event]");
+            [self postNXEventwithType:NX_MOUSEMOVED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+
         }
-
-        if (!dragState)
-        {
-            [self postNXEventwithType:(buttonState[kSystemButton1] ? NX_LMOUSEDOWN : NX_LMOUSEUP)
-                              subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
-
-            isEventPosted = true;
-        }
-    }
-
-    // Has Button 2 changed?
-    if (oldButtonState[kSystemButton2] != buttonState[kSystemButton2])
-    {
-//        [self postNXEventwithType:(buttonState[kSystemButton2] ? NX_LMOUSEDOWN : NX_LMOUSEUP)
-//                                      subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
-//        isEventPosted = true;
-    }
-
-    // Has the stylus changed position?
-    if (!isEventPosted && (_oldStylus.point.x != _stylus.point.x || _oldStylus.point.y != _stylus.point.y))
-    {
-        LogDebug(@"[Point event]");
-        [self postNXEventwithType:buttonEvent
-                          subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
 
     }
 
     // Finally, remember the current state for next time
     bcopy(&_stylus, &_oldStylus, sizeof(self.stylus));
-    bcopy(&buttonState, &oldButtonState, sizeof(buttonState));
 }
 
 //////////////////////////////////////////////////////////////
@@ -736,17 +720,18 @@ int fromBinary(char *s) {
 //////////////////////////////////////////////////////////////
 
 
-- (void)postNXEventwithType:(int)eventType subType:(SInt16)eventSubType otherButton:(UInt8)otherButton
+- (void)postNXEventwithType:(int)eventType subType:(SInt16)eventSubType buttonNumber:(UInt8)buttonNumber
 {
     static NXEventData eventData;
 
     switch (eventType)
     {
+        //TODO what are these
         case NX_OMOUSEUP:
         case NX_OMOUSEDOWN:
-            LogDebug(@"[mouseup event]");
+            LogDebug(@"[NX_OMOUSEUP/NX_OMOUSEDOWN event]");
             eventData.mouse.click = 0;
-            eventData.mouse.buttonNumber = otherButton;
+            eventData.mouse.buttonNumber = buttonNumber;
             break;
 
 
@@ -754,12 +739,15 @@ int fromBinary(char *s) {
         case NX_RMOUSEDOWN:
         case NX_RMOUSEUP:
         case NX_LMOUSEUP:
-            LogDebug(@"[mousedown event]");
+        {
+            NSString *buttonString = ((eventType == NX_LMOUSEDOWN || eventType == NX_LMOUSEUP) ? @"Left" : @"right");
+            NSString *buttonUPDownString = ((eventType == NX_LMOUSEDOWN || eventType == NX_RMOUSEDOWN) ? @"Down" : @"UP");
+            LogDebug(@"[%@mouse%@ event button %d]", buttonString, buttonUPDownString, buttonNumber);
             eventData.mouse.pressure = 0;
             eventData.mouse.subType = eventSubType;
             eventData.mouse.subx = 0;
             eventData.mouse.suby = 0;
-            eventData.mouse.buttonNumber = 1;
+            eventData.mouse.buttonNumber = buttonNumber;
 
             switch (eventSubType)
             {
@@ -780,14 +768,14 @@ int fromBinary(char *s) {
                     break;
             }
             break;
-
+        }
         case NX_MOUSEMOVED:
         case NX_LMOUSEDRAGGED:
         case NX_RMOUSEDRAGGED:
-            LogDebug(@"[Drag event]");
+            LogDebug(@"[%@ event]", eventType == NX_MOUSEMOVED ? @"Move" : @"Drag");
             bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
             bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(_stylus.proximity));
-            eventData.mouse.buttonNumber = 1;
+            eventData.mouse.buttonNumber = 0;
             eventData.mouseMove.subType = eventSubType;
             switch (eventSubType)
             {
@@ -833,35 +821,36 @@ int fromBinary(char *s) {
     IOGPoint newPoint = {_stylus.scrPos.x, _stylus.scrPos.y};
     LogDebug(@"[POSTING] pos: %d,%d, eventdata.pressure %d(s.pressure) %d cap mask %d", newPoint.x, newPoint.y, eventData.mouseMove.tablet.point.pressure, _stylus.pressure, eventData.mouseMove.tablet.proximity.capabilityMask);
 
-    if (NO && eventType == NX_LMOUSEDOWN)
-    {
+//    if (NO && eventType == NX_LMOUSEDOWN)
+//    {
+//
+//        NSEvent *dragEvent = [NSEvent mouseEventWithType:eventType
+//                                                location:NSMakePoint(newPoint.x, newPoint.y)
+//                                           modifierFlags:0
+//                                               timestamp:[[NSDate date] timeIntervalSince1970]
+//                                            windowNumber:0
+//                                                 context:nil eventNumber:0
+//                                              clickCount:1
+//                                                pressure:_stylus.pressure];
+//        CGEventRef cgEvent = [dragEvent CGEvent];
+//        CGEventPost(kCGHIDEventTap, cgEvent);
+//
+//
+//    } else
+//    {
 
-        NSEvent *dragEvent = [NSEvent mouseEventWithType:eventType
-                                                location:NSMakePoint(newPoint.x, newPoint.y)
-                                           modifierFlags:0
-                                               timestamp:[[NSDate date] timeIntervalSince1970]
-                                            windowNumber:0
-                                                 context:nil eventNumber:0
-                                              clickCount:1
-                                                pressure:_stylus.pressure];
-        CGEventRef cgEvent = [dragEvent CGEvent];
-        CGEventPost(kCGHIDEventTap, cgEvent);
-
-
-    } else
-    {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-            (void) IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &eventData, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
-        });
-    }
-
-    // we always post a proximity event individually
     if (eventSubType == NX_SUBTYPE_TABLET_PROXIMITY)
     {
+        // we always post a proximity event individually
         LogDebug(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
         bcopy(&_stylus.proximity, &eventData.proximity, sizeof(NXTabletProximityData));
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
             (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
+        });
+    } else
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+            (void) IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &eventData, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
         });
     }
 }
@@ -983,12 +972,11 @@ int fromBinary(char *s) {
 - (void)reinitialize
 {
     LogInfo(@"Reinitializing driver");
-    if (self.currentDeviceRef){
+    if (self.currentDeviceRef)
+    {
         LogInfo(@"Device was connected, emulating device remove");
         [self didRemoveDevice:self.currentDeviceRef
-                  withContext:nil
-                       result:nil
-                       sender:nil];
+                  withContext:nil result:nil sender:nil];
     }
     [self closeHIDService];
     [self initializeHID];

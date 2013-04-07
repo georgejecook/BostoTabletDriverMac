@@ -23,7 +23,8 @@
 
 - (void)awakeFromNib
 {
-    [[self window] setAcceptsMouseMovedEvents:YES];
+//    [[self window] setAcceptsMouseMovedEvents:YES];
+    [[self window] setAcceptsMouseMovedEvents:NO];
 }
 
 - (BOOL)isOpaque
@@ -54,6 +55,7 @@
 
 - (void)mouseDragged:(NSEvent *)event
 {
+    return;
     BOOL isMouseDown = YES;
     while (isMouseDown)
     {

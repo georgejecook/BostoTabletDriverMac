@@ -124,7 +124,12 @@ NSString *const kBTScreenManagerDidChangeScreenDetails = @"BTScreenManagerDidCha
     if ([NSScreen screens].count == 1){
         return [NSScreen mainScreen];
     }
+
+#warning - hard coded to main screen for now as I'm debugging without the screen connected
+    return [NSScreen mainScreen];
+
     for (NSScreen *screen in [NSScreen screens]){
+        //TODO - check the screen name
         if (screen != [NSScreen mainScreen]) {
             return screen;
         }
