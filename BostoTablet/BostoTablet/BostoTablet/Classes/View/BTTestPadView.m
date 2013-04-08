@@ -25,7 +25,7 @@
 - (void)awakeFromNib
 {
     [[self window] setAcceptsMouseMovedEvents:YES];
-    self.isActive = NO;
+    self.isActive = YES;
 }
 
 - (BOOL)isOpaque

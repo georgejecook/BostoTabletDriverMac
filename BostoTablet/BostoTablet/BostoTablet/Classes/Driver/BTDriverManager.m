@@ -112,6 +112,8 @@ typedef struct _settings
 tabletSettings bostoSettings = {-1, 54290, 30682, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0xED1, 0x782C, 0, false, 8, false};
 
 
+dispatch_queue_t _driverDispatchQueue;
+
 @interface BTDriverManager ()
 {
     uint8_t reportBuffer[32];
@@ -135,6 +137,12 @@ tabletSettings bostoSettings = {-1, 54290, 30682, 0, 0, 0, 0, 0, -1, -1, -1, -1,
 @property(nonatomic) int testStartBit;
 
 @property(nonatomic) int numberOfTestBits;
+
+@property(nonatomic) CFRunLoopRef mainRunLoop;
+
+@property(nonatomic) CFRunLoopRef backgroundRunLoop;
+
+@property(nonatomic) BOOL isBackgroundLoopActive;
 
 //calback methods
 - (void)didRemoveDevice:(IOHIDDeviceRef)deviceRef withContext:(void *)context result:(IOReturn)result sender:(void *)sender;
@@ -167,7 +175,8 @@ void theDeviceMatchingCallback(void *inContext, IOReturn inResult, void *inSende
 
 void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IOHIDReportType inReportType,
         uint32_t reportID, uint8_t *inReport, CFIndex length) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+    dispatch_async(_driverDispatchQueue, ^(void) {
         [[BTDriverManager shared] didReceiveReport:(uint8_t *) inReport withID:reportID];
     });
 }
@@ -206,14 +215,28 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     self = [super init];
     if (self)
     {
-        [self initializeHID];
-        [self initializeScreenSettings];
+        self.mainRunLoop = CFRunLoopGetCurrent();
+        self.isBackgroundLoopActive = YES;
+        [self performSelectorInBackground:@selector(runDriverInBackground) withObject:nil];
     }
 //    self.testStartBit = 8;
 //    self.numberOfTestBits = 16;
     self.pressureDamping = 0.5; //TODO - read this from preferences
 
     return self;
+}
+
+- (void)runDriverInBackground
+{
+    [self initializeHID];
+    [self initializeScreenSettings];
+    double resolution = 300.0;
+    _driverDispatchQueue = dispatch_queue_create("com.tantawowa.bostoTabletDriver.queue", DISPATCH_QUEUE_SERIAL);
+    while (self.isBackgroundLoopActive)
+    {
+        NSDate *theNextDate = [NSDate dateWithTimeIntervalSinceNow:resolution];
+        BOOL isRunning = [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:theNextDate];
+    }
 }
 
 - (void)initializeScreenSettings
@@ -231,6 +254,8 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 
 - (void)initializeHID
 {
+    self.backgroundRunLoop = CFRunLoopGetCurrent();
+
     LogInfo(@"initializing HID device");
     self.hidManager = IOHIDManagerCreate(kIOHIDOptionsTypeNone, 0);
 
@@ -258,6 +283,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 
         IOHIDManagerRegisterDeviceRemovalCallback(self.hidManager, theDeviceRemovalCallback, NULL);
         IOHIDManagerRegisterDeviceMatchingCallback(self.hidManager, theDeviceMatchingCallback, NULL);
+
 
         IOHIDManagerScheduleWithRunLoop(self.hidManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
@@ -534,11 +560,12 @@ int fromBinary(char *s) {
     [self calculateXYCoordsWithBits:report];
     tipPressure = report[6] | report[7] << 8;
 
-    //TODO look at dampening
     // tablet events are scaled to 0xFFFF (16 bit), so
     // a little shift to the right is needed
     //we also dampen the shift based on pressure
-//    tipPressure *= _pressureMod;
+
+    tipPressure = MIN(tipPressure *_pressureMod,1023);
+    //TODO look at dampening
 //    if (tipPressure < 512)
 //    {
 //        _stylus.pressure = tipPressure << 6;
@@ -549,6 +576,7 @@ int fromBinary(char *s) {
 //        _stylus.pressure = tipPressure << 7;
 
     _stylus.pressure = tipPressure << 6;
+
     // reconstruct the button state
     int tip = getBit(report[1], 0);
     int secondButton = getBit(report[1], 1);
@@ -566,8 +594,8 @@ int fromBinary(char *s) {
     _stylus.off_tablet = !getBit(report[1], 4);
 
 
-//    LogInfo(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
-//    LogInfo(@"pres : %d(%d)",  tipPressure,  _stylus.pressure);
+//    LogDebug(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
+    LogVerbose(@"pres : %d(%d) mod %f", tipPressure, _stylus.pressure, _pressureMod);
 
     // set the button state in the current stylus state
     SetButtons(bm);
@@ -585,7 +613,8 @@ int fromBinary(char *s) {
     int j = 7;
     for (int i = 1; i < 6; i++)
     {
-        while (j < 8 && index < 32){
+        while (j < 8 && index < 32)
+        {
             allBits[index] = getBit(report[i], j);
             index++;
             j++;
@@ -617,7 +646,7 @@ int fromBinary(char *s) {
     int returnInt = 0;
 
     int end = startIndex - length;
-    int bitIndex = length -1;
+    int bitIndex = length - 1;
     for (int j = startIndex; j > end; j--)
     {
         int value = bits[j] << bitIndex;
@@ -651,7 +680,7 @@ int fromBinary(char *s) {
         //TODO experiment to see if proximity is correctly reported
 //        [self postNXEventwithType:buttonEvent
         [self postNXEventwithType:NX_MOUSEMOVED subType:NX_SUBTYPE_TABLET_PROXIMITY buttonNumber:0];
-        LogDebug(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
+        LogVerbose(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
         _oldStylus.off_tablet = _stylus.off_tablet;
         _isDragging = NO;
         isEventPosted = YES;
@@ -691,7 +720,7 @@ int fromBinary(char *s) {
         isEventPosted = true;
     } else if (isTipDown && !wasTipDown && !isRightButtonDown)
     {
-        LogDebug(@">>>mouseDown");
+        LogVerbose(@">>>mouseDown");
         [self postNXEventwithType:NX_LMOUSEDOWN subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
         _stylus.motion.x = 0;
         _stylus.motion.y = 0;
@@ -706,7 +735,7 @@ int fromBinary(char *s) {
         BOOL isMouseMoved = isPenMoved;
         if (isMouseMoved)
         {
-            LogDebug(@">>>drag started");
+            LogVerbose(@">>>drag started");
             _isDragging = YES;
         }
     }
@@ -714,7 +743,7 @@ int fromBinary(char *s) {
     //report right mouse button
     if (isRightButtonDown != wasRightButtonDown)
     {
-        LogDebug(@"[Rightmouse evet] %@", isRightButtonDown ? @"down" : @"up");
+        LogVerbose(@"[Rightmouse evet] %@", isRightButtonDown ? @"down" : @"up");
         int buttonNumber = isRightButtonDown ? NX_RMOUSEDOWN : NX_RMOUSEUP;
         [self postNXEventwithType:buttonNumber
                           subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
@@ -722,16 +751,16 @@ int fromBinary(char *s) {
     }
 
     //pointing event
-    if (!isEventPosted && isPenMoved)
+    if (!isEventPosted && isPenMoved)//(isPenMoved || _stylus.pressure != _oldStylus.pressure))
     {
         if (_isDragging)
         {
-            LogDebug(@"[Drag event]");
+            LogVerbose(@"[Drag event]");
             [self postNXEventwithType:NX_LMOUSEDRAGGED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
 
         } else
         {
-            LogDebug(@"[Point event]");
+            LogVerbose(@"[Point event]");
             [self postNXEventwithType:NX_MOUSEMOVED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
 
         }
@@ -871,14 +900,16 @@ int fromBinary(char *s) {
         // we always post a proximity event individually
         LogDebug(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
         bcopy(&_stylus.proximity, &eventData.proximity, sizeof(NXTabletProximityData));
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-            (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
-        });
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+//        dispatch_sync(dispatch_get_main_queue(),^ {
+        (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
+//        });
     } else
     {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-            (void) IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &eventData, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
-        });
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+//        dispatch_sync(dispatch_get_main_queue(),^ {
+        (void) IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &eventData, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
+//        });
     }
 }
 

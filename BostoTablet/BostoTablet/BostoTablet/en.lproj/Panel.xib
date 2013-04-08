@@ -46,7 +46,7 @@
 				<string key="NSClassName">NSApplication</string>
 			</object>
 			<object class="NSWindowTemplate" id="654081285">
-				<int key="NSWindowStyleMask">144</int>
+				<int key="NSWindowStyleMask">128</int>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{139, 81}, {449, 368}}</string>
 				<int key="NSWTFlags">1685586944</int>
@@ -64,7 +64,6 @@
 							<string key="NSFrame">{{-3, -7}, {454, 350}}</string>
 							<reference key="NSSuperview" ref="627132493"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView" ref="1049007281"/>
 							<string key="NSReuseIdentifierKey">_NS:9</string>
 							<array class="NSMutableArray" key="NSTabViewItems">
 								<object class="NSTabViewItem" id="565388234">
@@ -344,11 +343,7 @@
 													<int key="NSCellFlags">-2080374784</int>
 													<int key="NSCellFlags2">134217728</int>
 													<string key="NSContents"/>
-													<object class="NSFont" key="NSSupport">
-														<string key="NSName">LucidaGrande</string>
-														<double key="NSSize">12</double>
-														<int key="NSfFlags">4883</int>
-													</object>
+													<reference key="NSSupport" ref="895075447"/>
 													<string key="NSCellIdentifier">_NS:9</string>
 													<reference key="NSControlView" ref="153638784"/>
 													<int key="NSButtonFlags">-2042347520</int>
@@ -370,7 +365,6 @@
 												<string key="NSFrame">{{185, 3}, {187, 32}}</string>
 												<reference key="NSSuperview" ref="1049007281"/>
 												<reference key="NSWindow"/>
-												<reference key="NSNextKeyView"/>
 												<string key="NSReuseIdentifierKey">_NS:9</string>
 												<bool key="NSEnabled">YES</bool>
 												<object class="NSButtonCell" key="NSCell" id="858652841">
@@ -411,7 +405,6 @@
 												<int key="NSvFlags">268</int>
 												<string key="NSFrame">{{152, 21}, {267, 21}}</string>
 												<reference key="NSSuperview" ref="214706312"/>
-												<reference key="NSNextKeyView"/>
 												<string key="NSReuseIdentifierKey">_NS:9</string>
 												<bool key="NSEnabled">YES</bool>
 												<object class="NSSliderCell" key="NSCell" id="1051955066">
@@ -620,7 +613,6 @@ dC4</string>
 												<int key="NSvFlags">268</int>
 												<string key="NSFrame">{{14, 69}, {363, 17}}</string>
 												<reference key="NSSuperview" ref="207469955"/>
-												<reference key="NSNextKeyView"/>
 												<string key="NSReuseIdentifierKey">_NS:1535</string>
 												<bool key="NSEnabled">YES</bool>
 												<object class="NSTextFieldCell" key="NSCell" id="689002157">
@@ -734,7 +726,7 @@ ZSBvbiB0aGUgZ2l0aHViIHByb2plY3QgcGFnZTo</string>
 					<reference key="NSNextKeyView" ref="456659035"/>
 					<string key="NSReuseIdentifierKey">_NS:21</string>
 				</object>
-				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
+				<string key="NSScreenRect">{{0, 0}, {1920, 1058}}</string>
 				<string key="NSMaxSize">{10000000000000, 10000000000000}</string>
 				<int key="NSWindowAnimationBehavior">2</int>
 				<int key="NSWindowCollectionBehavior">66</int>
@@ -1343,6 +1335,14 @@ ZSBvbiB0aGUgZ2l0aHViIHByb2plY3QgcGFnZTo</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
+					<string key="className">BTCustomCursorButton</string>
+					<string key="superclassName">NSButton</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/BTCustomCursorButton.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
 					<string key="className">BTPanelView</string>
 					<string key="superclassName">NSPanel</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
@@ -1390,10 +1390,10 @@ ZSBvbiB0aGUgZ2l0aHViIHByb2plY3QgcGFnZTo</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="backgroundView">BTBackgroundView</string>
 						<string key="displaysCombo">NSComboBox</string>
-						<string key="georgeButton">CustomCursorButton</string>
-						<string key="githubLinkButton">CustomCursorButton</string>
+						<string key="georgeButton">BTCustomCursorButton</string>
+						<string key="githubLinkButton">BTCustomCursorButton</string>
 						<string key="pressureSlider">NSSlider</string>
-						<string key="refreshButton">CustomCursorButton</string>
+						<string key="refreshButton">BTCustomCursorButton</string>
 						<string key="statusLabel">NSTextField</string>
 						<string key="testPadView">BTTestPadView</string>
 					</dictionary>
@@ -1408,11 +1408,11 @@ ZSBvbiB0aGUgZ2l0aHViIHByb2plY3QgcGFnZTo</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="georgeButton">
 							<string key="name">georgeButton</string>
-							<string key="candidateClassName">CustomCursorButton</string>
+							<string key="candidateClassName">BTCustomCursorButton</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="githubLinkButton">
 							<string key="name">githubLinkButton</string>
-							<string key="candidateClassName">CustomCursorButton</string>
+							<string key="candidateClassName">BTCustomCursorButton</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="pressureSlider">
 							<string key="name">pressureSlider</string>
@@ -1420,7 +1420,7 @@ ZSBvbiB0aGUgZ2l0aHViIHByb2plY3QgcGFnZTo</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="refreshButton">
 							<string key="name">refreshButton</string>
-							<string key="candidateClassName">CustomCursorButton</string>
+							<string key="candidateClassName">BTCustomCursorButton</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="statusLabel">
 							<string key="name">statusLabel</string>
@@ -1442,14 +1442,6 @@ ZSBvbiB0aGUgZ2l0aHViIHByb2plY3QgcGFnZTo</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">./Classes/BTTestPadView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">CustomCursorButton</string>
-					<string key="superclassName">NSButton</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/CustomCursorButton.h</string>
 					</object>
 				</object>
 			</array>

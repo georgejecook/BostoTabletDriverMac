@@ -53,9 +53,9 @@
 
 - (void)addDebugKeyHandler
 {
-    _eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:
+    _eventMonitor = [NSEvent addGlobalMonitorForEventsMatchingMask:
                                      (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask)
-                                                          handler:^(NSEvent *incomingEvent) {
+                                                          handler:^void(NSEvent *incomingEvent) {
                                                               NSEvent *result = incomingEvent;
                                                               NSWindow *targetWindowForEvent = [incomingEvent window];
 
@@ -67,9 +67,6 @@
                                                                       [[BTDriverManager shared] sendMouseUpEventToUnblockTheMouse];
                                                                   }
                                                               }
-
-
-                                                              return result;
                                                           }];
 }
 
