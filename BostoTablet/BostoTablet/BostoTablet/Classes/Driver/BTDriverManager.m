@@ -65,6 +65,7 @@ NSString *const kBTDriverManagerDidChangeStatus = @"BTDriverManagerDidChangeStat
 #pragma mark tablet defines
 //////////////////////////////////////////////////////////////
 
+static NSString *const kPressureKey = @"com.tantawowa.bostoDriver.pressureKey";
 uint8_t switchToTablet[] = {0x02, 0x10, 0x01};
 
 //////////////////////////////////////////////////////////////
@@ -221,7 +222,8 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     }
 //    self.testStartBit = 8;
 //    self.numberOfTestBits = 16;
-    self.pressureDamping = 0.5; //TODO - read this from preferences
+    NSNumber *pressureNumber = [[NSUserDefaults standardUserDefaults] objectForKey:kPressureKey];
+    self.pressureDamping = pressureNumber ? [pressureNumber floatValue] : 0.5;
 
     return self;
 }
@@ -369,11 +371,11 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     _stylus.tool = kToolTypePencil;
     _stylus.serialno = 0;
 
-    _stylus.off_tablet = true;
-    _stylus.pen_near = false;
-    _stylus.eraser_flag = false;
+    _stylus.off_tablet = YES;
+    _stylus.pen_near = NO;
+    _stylus.eraser_flag = YES;
 
-    _stylus.button_click = false;
+    _stylus.button_click = NO;
 
     ResetButtons;
 
@@ -564,7 +566,7 @@ int fromBinary(char *s) {
     // a little shift to the right is needed
     //we also dampen the shift based on pressure
 
-    tipPressure = MIN(tipPressure *_pressureMod,1023);
+    tipPressure = MIN(tipPressure * _pressureMod, 1023);
     //TODO look at dampening
 //    if (tipPressure < 512)
 //    {
@@ -601,6 +603,10 @@ int fromBinary(char *s) {
     SetButtons(bm);
 //    LogDebug(@"buttonMap : %d", bm);
     [self updateStylusStatus];
+
+    // Finally, remember the current state for next time
+    bcopy(&_stylus, &_oldStylus, sizeof(self.stylus));
+
 }
 
 - (void)calculateXYCoordsWithBits:(uint8_t *)report
@@ -672,8 +678,6 @@ int fromBinary(char *s) {
     _stylus.scrPos.y = mappedPoint.y;
 //    LogDebug(@"[[[[mapped pos %d,%d to %f,%f", _stylus.point.x, _stylus.point.y, mappedPoint.x, mappedPoint.y);
 
-    bool isEventPosted = false;
-
     // Has the stylus moved in or out of range?
     if (_oldStylus.off_tablet != _stylus.off_tablet)
     {
@@ -683,7 +687,7 @@ int fromBinary(char *s) {
         LogVerbose(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
         _oldStylus.off_tablet = _stylus.off_tablet;
         _isDragging = NO;
-        isEventPosted = YES;
+        return;
     }
 
     // TODO - double click processing Is a Double-Click warranted?
@@ -707,7 +711,7 @@ int fromBinary(char *s) {
 //            PostNXEvent(NX_LMOUSEUP, NX_SUBTYPE_TABLET_POINT, 0);
 //        }
 //
-//        isEventPosted = true;
+//        isEventPosted = YES;
 //    }
 
     //report a click
@@ -717,23 +721,23 @@ int fromBinary(char *s) {
         LogDebug(@">>>mouseUp -drag ended");
         [self postNXEventwithType:NX_LMOUSEUP subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
         _isDragging = NO;
-        isEventPosted = true;
+        return;
     } else if (isTipDown && !wasTipDown && !isRightButtonDown)
     {
         LogVerbose(@">>>mouseDown");
         [self postNXEventwithType:NX_LMOUSEDOWN subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
         _stylus.motion.x = 0;
         _stylus.motion.y = 0;
-        isEventPosted = true;
         _isDragging = NO;
+        return;
     }
 
 
     BOOL isPenMoved = _stylus.motion.x != 0 || _stylus.motion.y != 0;
-    if (!isEventPosted && !_isDragging && isTipDown)
+    BOOL isPressureChanged = _stylus.pressure != _oldStylus.pressure;
+    if (!_isDragging && isTipDown)
     {
-        BOOL isMouseMoved = isPenMoved;
-        if (isMouseMoved)
+        if (isPenMoved || isPressureChanged)
         {
             LogVerbose(@">>>drag started");
             _isDragging = YES;
@@ -744,31 +748,28 @@ int fromBinary(char *s) {
     if (isRightButtonDown != wasRightButtonDown)
     {
         LogVerbose(@"[Rightmouse evet] %@", isRightButtonDown ? @"down" : @"up");
-        int buttonNumber = isRightButtonDown ? NX_RMOUSEDOWN : NX_RMOUSEUP;
-        [self postNXEventwithType:buttonNumber
-                          subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
-        isEventPosted = true;
+        [self postNXEventwithType:isRightButtonDown ? NX_RMOUSEDOWN : NX_RMOUSEUP
+                          subType:NX_SUBTYPE_TABLET_POINT
+                     buttonNumber:0];
+        return;
     }
 
     //pointing event
-    if (!isEventPosted && isPenMoved)//(isPenMoved || _stylus.pressure != _oldStylus.pressure))
+    if (!_isDragging && isPenMoved)
     {
-        if (_isDragging)
-        {
-            LogVerbose(@"[Drag event]");
-            [self postNXEventwithType:NX_LMOUSEDRAGGED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
-
-        } else
-        {
-            LogVerbose(@"[Point event]");
-            [self postNXEventwithType:NX_MOUSEMOVED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
-
-        }
-
+        LogVerbose(@"[Point event]");
+        [self postNXEventwithType:NX_MOUSEMOVED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        return;
     }
 
-    // Finally, remember the current state for next time
-    bcopy(&_stylus, &_oldStylus, sizeof(self.stylus));
+    //dragging event
+    if (_isDragging && (isPenMoved || isPressureChanged))
+    {
+        LogVerbose(@"[Drag event]");
+        [self postNXEventwithType:NX_LMOUSEDRAGGED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        return;
+    }
+
 }
 
 //////////////////////////////////////////////////////////////
@@ -1020,6 +1021,8 @@ int fromBinary(char *s) {
 - (void)setPressureDamping:(float)pressureDamping
 {
     _pressureDamping = pressureDamping;
+    [[NSUserDefaults standardUserDefaults] setObject:@(pressureDamping) forKey:kPressureKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
     _pressureMod = 0.5 - self.pressureDamping;
     _pressureMod = 1 - _pressureMod;
     LogInfo(@"pressure damping %f mod is %f", pressureDamping, _pressureMod);
