@@ -56,6 +56,7 @@
 		17364F8F57F33BB1AD785A6B /* BTPanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* BTPanelView.m */; };
 		17364FB8B110F4C74270AC43 /* BTAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 173648D4FD3AC4A03771A959 /* BTAppDelegate.m */; };
 		E133B3D5170DAAAE002B9E4A /* Panel.xib in Resources */ = {isa = PBXBuildFile; fileRef = E133B3D3170DAAAE002B9E4A /* Panel.xib */; };
+		E194A9551713857500AAD7A0 /* bosto.icns in Resources */ = {isa = PBXBuildFile; fileRef = E194A9541713857500AAD7A0 /* bosto.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -122,6 +123,7 @@
 		17364FF7F62CC5126E77A0DC /* BTDriverManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTDriverManager.m; sourceTree = "<group>"; };
 		17364FFAA0D90997DA518049 /* stylus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stylus.h; sourceTree = "<group>"; };
 		E133B3D4170DAAAE002B9E4A /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/Panel.xib; sourceTree = "<group>"; };
+		E194A9541713857500AAD7A0 /* bosto.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = bosto.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +195,7 @@
 		1736469AC2223AB9DF57BB42 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E194A9541713857500AAD7A0 /* bosto.icns */,
 				17364B4080DCDFE36F681332 /* Images */,
 			);
 			path = Resources;
@@ -405,6 +408,7 @@
 				1736493169F2C70419BF6708 /* StatusHighlighted.png in Resources */,
 				17364CF0F99EAF6E9DAE016B /* georgejecook.jpeg in Resources */,
 				17364986DCC5A909A8D1D356 /* refreshButton.png in Resources */,
+				E194A9551713857500AAD7A0 /* bosto.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
