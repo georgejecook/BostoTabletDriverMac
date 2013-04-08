@@ -10,6 +10,7 @@
 
 @interface BTTestPadView ()
 @property(nonatomic) NSPoint previousLocation;
+@property(nonatomic) BOOL isActive;
 @end
 
 @implementation BTTestPadView
@@ -23,8 +24,8 @@
 
 - (void)awakeFromNib
 {
-//    [[self window] setAcceptsMouseMovedEvents:YES];
-    [[self window] setAcceptsMouseMovedEvents:NO];
+    [[self window] setAcceptsMouseMovedEvents:YES];
+    self.isActive = NO;
 }
 
 - (BOOL)isOpaque
@@ -49,13 +50,18 @@
 
 - (void)mouseDown:(NSEvent *)event
 {
+    if (!self.isActive){
+        return;
+    }
     [self logEvent:event];
     self.previousLocation = [self convertPoint:[event locationInWindow] fromView:nil];
 }
 
 - (void)mouseDragged:(NSEvent *)event
 {
-    return;
+    if (!self.isActive){
+        return;
+    }
     BOOL isMouseDown = YES;
     while (isMouseDown)
     {
@@ -80,11 +86,17 @@
 
 - (void)mouseMoved:(NSEvent *)event
 {
+    if (!self.isActive){
+        return;
+    }
     [self logEvent:event];
 }
 
 - (void)mouseUp:(NSEvent *)event
 {
+    if (!self.isActive){
+        return;
+    }
     [self logEvent:event];
 }
 

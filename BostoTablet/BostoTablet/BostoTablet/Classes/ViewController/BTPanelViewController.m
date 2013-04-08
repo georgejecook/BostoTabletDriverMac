@@ -21,6 +21,7 @@
 @implementation BTPanelViewController
 {
     BOOL _hasActivePanel;
+    id _eventMonitor;
 }
 
 @synthesize backgroundView = _backgroundView;
@@ -45,9 +46,31 @@
                                                  selector:@selector (didChangeDriverStatus:)
                                                      name:kBTDriverManagerDidChangeStatus
                                                    object:nil];
-
+        [self addDebugKeyHandler];
     }
     return self;
+}
+
+- (void)addDebugKeyHandler
+{
+    _eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:
+                                     (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask)
+                                                          handler:^(NSEvent *incomingEvent) {
+                                                              NSEvent *result = incomingEvent;
+                                                              NSWindow *targetWindowForEvent = [incomingEvent window];
+
+                                                              if ([incomingEvent type] == NSKeyDown)
+                                                              {
+                                                                  if ([incomingEvent keyCode] == 53)
+                                                                  {
+                                                                      // when we press escape we send a mouse up event to be safe
+                                                                      [[BTDriverManager shared] sendMouseUpEventToUnblockTheMouse];
+                                                                  }
+                                                              }
+
+
+                                                              return result;
+                                                          }];
 }
 
 - (void)didChangeScreenParameters:(id)didChangeScreenParameters

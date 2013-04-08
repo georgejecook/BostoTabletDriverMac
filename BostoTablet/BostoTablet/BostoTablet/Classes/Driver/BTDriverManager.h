@@ -49,5 +49,7 @@ extern NSString *const kBTDriverManagerDidChangeStatus; //listen to this if you 
 
 - (void)reinitialize;
 
-@property(nonatomic, assign) float pressureDamping; // 0.5 is normal, < 0.5 == stronger lines, > 0.5 = weaker lines
+@property(nonatomic, assign) float pressureDamping;
+
+- (void)sendMouseUpEventToUnblockTheMouse; // 0.5 is normal, < 0.5 == stronger lines, > 0.5 = weaker lines
 @end

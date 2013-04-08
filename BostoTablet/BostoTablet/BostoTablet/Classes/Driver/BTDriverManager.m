@@ -528,30 +528,74 @@ int fromBinary(char *s) {
 
     UInt16 bm = 0; // button mask
 
-    int xCoord;
-    int yCoord;
     int tipPressure;
     ResetButtons;  // forget the system buttons and reconstruct them in this routine
 
-    int allBits[8 * 8];
+    [self calculateXYCoordsWithBits:report];
+    tipPressure = report[6] | report[7] << 8;
 
-    int index = 0;
-    for (int i = 0; i < 8; i++)
+    //TODO look at dampening
+    // tablet events are scaled to 0xFFFF (16 bit), so
+    // a little shift to the right is needed
+    //we also dampen the shift based on pressure
+//    tipPressure *= _pressureMod;
+//    if (tipPressure < 512)
+//    {
+//        _stylus.pressure = tipPressure << 6;
+//    } else
+//    {
+//        _stylus.pressure = tipPressure << 7;
+//    }
+//        _stylus.pressure = tipPressure << 7;
+
+    _stylus.pressure = tipPressure << 6;
+    // reconstruct the button state
+    int tip = getBit(report[1], 0);
+    int secondButton = getBit(report[1], 1);
+    if (tip && !secondButton)
     {
-        for (int j = 0; j < 8; j++)
-        {
+        bm |= kBitStylusTip;
+    }
+
+    if (secondButton)
+    {
+        bm |= kBitStylusButton2;
+    }
+
+
+    _stylus.off_tablet = !getBit(report[1], 4);
+
+
+//    LogInfo(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
+//    LogInfo(@"pres : %d(%d)",  tipPressure,  _stylus.pressure);
+
+    // set the button state in the current stylus state
+    SetButtons(bm);
+//    LogDebug(@"buttonMap : %d", bm);
+    [self updateStylusStatus];
+}
+
+- (void)calculateXYCoordsWithBits:(uint8_t *)report
+{
+    //through trial and error I found that x starts at bit 15, and y at bit 31 - they are both 16 bits.
+    int xCoord;
+    int yCoord;
+    int allBits[32];
+    int index = 0;
+    int j = 7;
+    for (int i = 1; i < 6; i++)
+    {
+        while (j < 8 && index < 32){
             allBits[index] = getBit(report[i], j);
             index++;
+            j++;
         }
+        j = 0;
     }
-    //LogInfo([self bitStringWithArray:allBits length:8*8]);
-    //through trial and error I found that x starts at bit 15, and y at bit 31 - they are both 16 bits.
+    xCoord = [self intWithBits:allBits startIndex:15 length:16];
+    yCoord = [self intWithBits:allBits startIndex:31 length:16];
 
-    tipPressure = report[6] | report[7] << 8;
-    NSString *xString = [self bitStringWithBits:allBits startIndex:15 length:16];
-    NSString *yString = [self bitStringWithBits:allBits startIndex:31 length:16];
-    xCoord = fromBinary([xString UTF8String]);
-    yCoord = fromBinary([yString UTF8String]);
+//    LogInfo(@"xbits %d, ybits %d", xCoord, yCoord);
 
     // LogDebug(@"update %d/%d, pres : %d off_tab xbits %@, ybits %@", xCoord, yCoord, tipPressure, xString, yString);
 
@@ -563,44 +607,26 @@ int fromBinary(char *s) {
     _stylus.point.x = xCoord;
     _stylus.point.y = yCoord;
 
-    // calculate difference
     _stylus.motion.x = _stylus.point.x - _stylus.old.x;
-    _stylus.motion.y = _stylus.point.y - _stylus.old.y; // point und old werden in tablet koordinaten Ã¼bertragen
+    _stylus.motion.y = _stylus.point.y - _stylus.old.y;
+}
 
-    //TODO look at dampening
-    // tablet events are scaled to 0xFFFF (16 bit), so
-    // a little shift to the right is needed
-    //we also dampen the shift based on pressure
-    tipPressure *= _pressureMod;
-    if (tipPressure < 512)
+//this method counts in reverse
+- (int)intWithBits:(int [])bits startIndex:(int)startIndex length:(int)length
+{
+    int returnInt = 0;
+
+    int end = startIndex - length;
+    int bitIndex = length -1;
+    for (int j = startIndex; j > end; j--)
     {
-        _stylus.pressure = tipPressure << 5;
-    } else
-    {
-        _stylus.pressure = tipPressure << 7;
+        int value = bits[j] << bitIndex;
+        returnInt |= value;
+//        LogInfo(@"bit %d bitValue %d bitIndex %d, balue %d returnInt %d", j, bits[j], bitIndex, value, returnInt);
+        bitIndex--;
     }
 
-    // reconstruct the button state
-    if (allBits[8] && !allBits[9])
-    {
-        bm |= kBitStylusTip;
-    }
-
-    if (allBits[9])
-    {
-        bm |= kBitStylusButton2;
-    }
-
-
-    _stylus.off_tablet = !allBits[12];
-
-
-    //LogDebug(@"update %d/%d, pres : %d(%d) off_tab %d bm %d", _stylus.point.x, _stylus.point.y, tipPressure,  _stylus.pressure, _stylus.off_tablet,bm);
-
-    // set the button state in the current stylus state
-    SetButtons(bm);
-//    LogDebug(@"buttonMap : %d", bm);
-    [self updateStylusStatus];
+    return returnInt;
 }
 
 - (void)updateStylusStatus
@@ -702,6 +728,7 @@ int fromBinary(char *s) {
         {
             LogDebug(@"[Drag event]");
             [self postNXEventwithType:NX_LMOUSEDRAGGED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+
         } else
         {
             LogDebug(@"[Point event]");
@@ -981,5 +1008,10 @@ int fromBinary(char *s) {
     [self closeHIDService];
     [self initializeHID];
 
+}
+
+- (void)sendMouseUpEventToUnblockTheMouse
+{
+    [self postNXEventwithType:NX_LMOUSEUP subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
 }
 @end
