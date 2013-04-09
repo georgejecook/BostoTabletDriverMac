@@ -33,26 +33,30 @@ https://github.com/georgejecook/BostoTabletDriverMac
 \
 Unfortunately there are no mac drivers. This is my hobby attempt to make a mac driver for the tablet. I've never done a hardware driver before; so this is still a work in progress..\
 \
-Some things are good:\
+Features:\
+======\
 Fast,\
-Works with Flash, fireworks, Sketchbook express, Corel Painter, \
-works with the operating system, \
-works with other paint packages,\
+Pressure,\
+Tested as Working with:\
+  Flash CS5, \
+  Fireworks, \
+  Sketchbook express, \
+  Corel Painter, \
+  Photoshop CS6, \
+  The operating system, \
+Probably works with other paint packages,\
+Can edit pressure sensitivity,\
+Can offset the cursor to the position you like on the pen,\
+Has a "super fast mode" - you click a button and it will automatically give the process higher privileges to get better performance (you'll need your password to run it).\
 \
-Some things are not so good:\
-No Pressure in corel painter,\
-\
-And some things just plain suck:\
-Only tested on Bostom 19mb - I have no idea if it will work on other bosto tablets,\
-Doesn't work with Adobe Photoshop CS6, or CS5\
-Does not have any smoothing of pressure or coordinates - this is going to be a deal breaker for most of you : if you draw lines really slowly - you get a lot of "noise" and jitter - in some packages you'll find you get more pressure at the end of your strokes..\
-\
-What I'm doing about all of this:\
-Well - I am doing this for free in my (rare) spare time.. I'm Putting up there in the hope that others will help me take it forward - seeing as a lot of the heavy lifting has already been done. If not - I'll chip away at it a bit at a time as time allows.\
+Items that need to be implemented/improved:\
+============================\
+Smoothing of pen at low velocity,\
+Pressure smoothing.\
 \
 You can get updates on the status at:\
 https://trello.com/board/bostotabletdrivermac/515d7c50420441240f003bd5\
 \
 And can contact me via the github page: \
 https://github.com/georgejecook/BostoTabletDriverMac\
-}]]></resource></locale></resources><flags/><extra-files/><item type="file">01bostotablet.xml</item><mod>properties.systemDomain</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>description</mod><mod>properties.anywhereDomain</mod><mod>extraFiles</mod></pkmkdoc>
+}]]></resource></locale></resources><flags/><extra-files/><item type="file">01bostotablet.xml</item><mod>extraFiles</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>description</mod><mod>properties.anywhereDomain</mod><mod>properties.systemDomain</mod></pkmkdoc>
