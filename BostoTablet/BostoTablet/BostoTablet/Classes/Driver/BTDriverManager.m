@@ -192,6 +192,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     BOOL _isConnected;
     float _pressureMod;
     bool _isDragging;
+    SInt16 _eventNumber;
 }
 
 //////////////////////////////////////////////////////////////
@@ -683,49 +684,24 @@ int fromBinary(char *s) {
     {
         //TODO experiment to see if proximity is correctly reported
 //        [self postNXEventwithType:buttonEvent
-        [self postNXEventwithType:NX_MOUSEMOVED subType:NX_SUBTYPE_TABLET_PROXIMITY buttonNumber:0];
+        [self postProximityEvent];
         LogVerbose(@"Stylus has %s proximity", _stylus.off_tablet ? "exited" : "entered");
         _oldStylus.off_tablet = _stylus.off_tablet;
         _isDragging = NO;
         return;
     }
 
-    // TODO - double click processing Is a Double-Click warranted?
-//    if (buttonState[kSystemDoubleClick] && !oldButtonState[kSystemDoubleClick])
-//    {
-//        if (oldButtonState[kSystemButton1])
-//        {
-//            [self postNXEventwithType:NX_LMOUSEUP subType:NX_SUBTYPE_TABLET_POINT otherButton:0];
-//
-//        }
-//
-//        PostNXEvent(NX_LMOUSEDOWN, NX_SUBTYPE_TABLET_POINT, 0);
-//
-//        PostNXEvent(NX_LMOUSEUP, NX_SUBTYPE_TABLET_POINT, 0);
-//
-//        PostNXEvent(NX_LMOUSEDOWN, NX_SUBTYPE_TABLET_POINT, 0);
-//
-//        if (!oldButtonState[kSystemButton1])
-//        {
-//
-//            PostNXEvent(NX_LMOUSEUP, NX_SUBTYPE_TABLET_POINT, 0);
-//        }
-//
-//        isEventPosted = YES;
-//    }
-
     //report a click
-//    if (_stylus.pressure == 0 && _oldStylus.pressure != 0)
     if (!isTipDown && wasTipDown)
     {
         LogDebug(@">>>mouseUp -drag ended");
-        [self postNXEventwithType:NX_LMOUSEUP subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        [self postButtonEvent:NX_LMOUSEUP withButtonNumber:0];
         _isDragging = NO;
         return;
     } else if (isTipDown && !wasTipDown && !isRightButtonDown)
     {
         LogVerbose(@">>>mouseDown");
-        [self postNXEventwithType:NX_LMOUSEDOWN subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        [self postButtonEvent:NX_LMOUSEDOWN withButtonNumber:0];
         _stylus.motion.x = 0;
         _stylus.motion.y = 0;
         _isDragging = NO;
@@ -748,9 +724,7 @@ int fromBinary(char *s) {
     if (isRightButtonDown != wasRightButtonDown)
     {
         LogVerbose(@"[Rightmouse evet] %@", isRightButtonDown ? @"down" : @"up");
-        [self postNXEventwithType:isRightButtonDown ? NX_RMOUSEDOWN : NX_RMOUSEUP
-                          subType:NX_SUBTYPE_TABLET_POINT
-                     buttonNumber:0];
+        [self postButtonEvent:isRightButtonDown ? NX_RMOUSEDOWN : NX_RMOUSEUP withButtonNumber:0];
         return;
     }
 
@@ -758,7 +732,7 @@ int fromBinary(char *s) {
     if (!_isDragging && isPenMoved)
     {
         LogVerbose(@"[Point event]");
-        [self postNXEventwithType:NX_MOUSEMOVED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        [self postMoveOrDragEvent:NX_MOUSEMOVED];
         return;
     }
 
@@ -766,7 +740,7 @@ int fromBinary(char *s) {
     if (_isDragging && (isPenMoved || isPressureChanged))
     {
         LogVerbose(@"[Drag event]");
-        [self postNXEventwithType:NX_LMOUSEDRAGGED subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+        [self postMoveOrDragEvent:NX_LMOUSEDRAGGED];
         return;
     }
 
@@ -784,8 +758,8 @@ int fromBinary(char *s) {
 	IOGPoint newPoint = { _stylus.scrPos.x, _stylus.scrPos.y };
 
 	bzero(&nxEvent, sizeof(NXEventData));
-//	nxEvent.mouseMove.subx = _stylus.subx;
-//	nxEvent.mouseMove.suby = _stylus.suby;
+	nxEvent.mouseMove.subx = _stylus.subx;
+	nxEvent.mouseMove.suby = _stylus.suby;
 	nxEvent.mouseMove.subType = NX_SUBTYPE_TABLET_PROXIMITY;
 	bcopy(&_stylus.proximity, &nxEvent.mouseMove.tablet.proximity, sizeof(NXTabletProximityData));
 	nxEvent.mouseMove.tablet.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
@@ -795,156 +769,54 @@ int fromBinary(char *s) {
 	bcopy(&_stylus.proximity, &nxEvent.proximity, sizeof(NXTabletProximityData));
 	nxEvent.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
 	IOHIDPostEvent(self.gEventDriver,NX_TABLETPROXIMITY,newPoint,&nxEvent,kNXEventDataVersion,0,0);
-
 }
 
-- (void)postNXEventwithType:(int)eventType subType:(SInt16)eventSubType buttonNumber:(UInt8)buttonNumber
+
+- (void)postMoveOrDragEvent:(UInt32) eventType
 {
-    static NXEventData eventData;
+	NXEventData	nxEvent;
+	IOGPoint newPoint = { _stylus.scrPos.x, _stylus.scrPos.y };
 
-    switch (eventType)
-    {
-        //TODO what are these
-        case NX_OMOUSEUP:
-        case NX_OMOUSEDOWN:
-            LogDebug(@"[NX_OMOUSEUP/NX_OMOUSEDOWN event]");
-            eventData.mouse.click = 0;
-            eventData.mouse.buttonNumber = buttonNumber;
-            break;
+	bzero(&nxEvent, sizeof(NXEventData));
+	nxEvent.mouseMove.dx = (SInt32)(_stylus.ioPos.x - _oldStylus.ioPos.x);
+	nxEvent.mouseMove.dy = (SInt32)(_stylus.ioPos.y - _oldStylus.ioPos.y);
+	nxEvent.mouseMove.subType = NX_SUBTYPE_TABLET_POINT;
+	nxEvent.mouseMove.subx = _stylus.subx;
+	nxEvent.mouseMove.suby = _stylus.suby;
+	nxEvent.mouseMove.tablet.point.x = _stylus.report.x;
+	nxEvent.mouseMove.tablet.point.y = _stylus.report.y;
+	nxEvent.mouseMove.tablet.point.buttons = _stylus.report.buttons;
+	nxEvent.mouseMove.tablet.point.pressure = _stylus.pressure;
+	nxEvent.mouseMove.tablet.point.deviceID = _stylus.proximity.deviceID;
+	IOHIDPostEvent(self.gEventDriver,eventType,newPoint,&nxEvent,kNXEventDataVersion,0,kIOHIDSetCursorPosition);
 
-
-        case NX_LMOUSEDOWN:
-        case NX_RMOUSEDOWN:
-        case NX_RMOUSEUP:
-        case NX_LMOUSEUP:
-        {
-            NSString *buttonString = ((eventType == NX_LMOUSEDOWN || eventType == NX_LMOUSEUP) ? @"Left" : @"right");
-            NSString *buttonUPDownString = ((eventType == NX_LMOUSEDOWN || eventType == NX_RMOUSEDOWN) ? @"Down" : @"UP");
-            LogDebug(@"[%@mouse%@ event button %d]", buttonString, buttonUPDownString, buttonNumber);
-            eventData.mouse.pressure = 0;
-            eventData.mouse.subType = eventSubType;
-            eventData.mouse.subx = 0;
-            eventData.mouse.suby = 0;
-            eventData.mouse.buttonNumber = buttonNumber;
-
-            switch (eventSubType)
-            {
-                case NX_SUBTYPE_TABLET_POINT:
-                    bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
-
-                    eventData.mouse.tablet.point.x = _stylus.point.x;
-                    eventData.mouse.tablet.point.y = _stylus.point.y;
-                    eventData.mouse.tablet.point.buttons = 0x0000;
-                    eventData.mouse.tablet.point.tilt.x = _stylus.tilt.x;
-                    eventData.mouse.tablet.point.tilt.y = _stylus.tilt.y;
-                    break;
-
-                case NX_SUBTYPE_TABLET_PROXIMITY:
-                    bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case NX_MOUSEMOVED:
-        case NX_LMOUSEDRAGGED:
-        case NX_RMOUSEDRAGGED:
-            LogDebug(@"[%@ event]", eventType == NX_MOUSEMOVED ? @"Move" : @"Drag");
-            bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
-            bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(_stylus.proximity));
-            eventData.mouse.buttonNumber = 0;
-            eventData.mouseMove.subType = eventSubType;
-            switch (eventSubType)
-            {
-                case NX_SUBTYPE_TABLET_POINT:
-                    eventData.mouseMove.tablet.point.x = _stylus.point.x;
-                    eventData.mouseMove.tablet.point.y = _stylus.point.y;
-                    eventData.mouseMove.tablet.point.buttons = 0x0000;
-                    eventData.mouseMove.tablet.point.tilt.x = _stylus.tilt.x;
-                    eventData.mouseMove.tablet.point.tilt.y = _stylus.tilt.y;
-                    break;
-
-                case NX_SUBTYPE_TABLET_PROXIMITY:
-                    bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(NXTabletProximityData));
-                    break;
-                default:
-                    break;
-            }
-
-            // Relative motion is needed for the mouseMove event
-            if (_stylus.oldPos.x == SHRT_MIN)
-            {
-                eventData.mouseMove.dx = eventData.mouseMove.dy = 0;
-            }
-            else
-            {
-                eventData.mouseMove.dx = (SInt32) (_stylus.scrPos.x - _stylus.oldPos.x);
-                eventData.mouseMove.dy = (SInt32) (_stylus.scrPos.y - _stylus.oldPos.y);
-            }
-            eventData.mouseMove.subx = 0;
-            eventData.mouseMove.suby = 0;
-            _stylus.oldPos = _stylus.scrPos;
-            break;
-        default:
-            break;
-    }
-
-    bcopy(&_stylus.proximity, &eventData.mouse.tablet.proximity, sizeof(_stylus.proximity));
-    bcopy(&_stylus.proximity, &eventData.mouseMove.tablet.proximity, sizeof(_stylus.proximity));
-
-    eventData.mouseMove.tablet.point.pressure = _stylus.pressure;
-
-    // Generate the tablet event to the system event driver
-    IOGPoint newPoint = {_stylus.scrPos.x, _stylus.scrPos.y};
-    LogDebug(@"[POSTING] pos: %d,%d, eventdata.pressure %d(s.pressure) %d cap mask %d", newPoint.x, newPoint.y, eventData.mouseMove.tablet.point.pressure, _stylus.pressure, eventData.mouseMove.tablet.proximity.capabilityMask);
-
-//    if (NO && eventType == NX_LMOUSEDOWN)
-//    {
-//
-//        NSEvent *dragEvent = [NSEvent mouseEventWithType:eventType
-//                                                location:NSMakePoint(newPoint.x, newPoint.y)
-//                                           modifierFlags:0
-//                                               timestamp:[[NSDate date] timeIntervalSince1970]
-//                                            windowNumber:0
-//                                                 context:nil eventNumber:0
-//                                              clickCount:1
-//                                                pressure:_stylus.pressure];
-//        CGEventRef cgEvent = [dragEvent CGEvent];
-//        CGEventPost(kCGHIDEventTap, cgEvent);
-//
-//
-//    } else
-//    {
-
-    if (eventSubType == NX_SUBTYPE_TABLET_PROXIMITY)
-    {
-        [self postProximityEvent];
-//        // we always post a proximity event individually
-//        LogDebug(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
-//        bcopy(&_stylus.proximity, &eventData.proximity, sizeof(NXTabletProximityData));
-////        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-////        dispatch_sync(dispatch_get_main_queue(),^ {
-//        eventData.mouseMove.tablet.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
-//
-//        (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
-//        });
-    } else
-    {
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-//        dispatch_sync(dispatch_get_main_queue(),^ {
-        (void) IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &eventData, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
-//        });
-    }
 }
+
+- (void)postButtonEvent:(UInt32)eventType withButtonNumber:(UInt8) btnNumber
+{
+	NXEventData	nxEvent;
+	IOGPoint newPoint = { _stylus.scrPos.x, _stylus.scrPos.y };
+
+	bzero(&nxEvent, sizeof(NXEventData));
+	nxEvent.mouse.click			= 0;
+	nxEvent.mouse.subx			= _stylus.subx;
+	nxEvent.mouse.suby			= _stylus.suby;
+	nxEvent.mouse.eventNum		= _eventNumber++;
+	nxEvent.mouse.pressure		= _stylus.pressure;
+	nxEvent.mouse.buttonNumber  = btnNumber;
+	nxEvent.mouse.subType		= NX_SUBTYPE_TABLET_POINT;
+	nxEvent.mouse.tablet.point.x = _stylus.report.x;
+	nxEvent.mouse.tablet.point.y = _stylus.report.y;
+	nxEvent.mouse.tablet.point.buttons = _stylus.report.buttons;
+	nxEvent.mouse.tablet.point.pressure = _stylus.report.pressure;
+	nxEvent.mouse.tablet.point.deviceID = _stylus.proximity.deviceID;
+	IOHIDPostEvent(self.gEventDriver,eventType,newPoint,&nxEvent,kNXEventDataVersion,0,0);
+}
+
 
 //////////////////////////////////////////////////////////////
 #pragma mark screen mapping methods 
 //////////////////////////////////////////////////////////////
-
-//TODO refactor into it's own class
-
-
 
 //
 // InitTabletBounds
@@ -1070,6 +942,6 @@ int fromBinary(char *s) {
 
 - (void)sendMouseUpEventToUnblockTheMouse
 {
-    [self postNXEventwithType:NX_LMOUSEUP subType:NX_SUBTYPE_TABLET_POINT buttonNumber:0];
+    [self postButtonEvent:NX_LMOUSEUP withButtonNumber:0];
 }
 @end

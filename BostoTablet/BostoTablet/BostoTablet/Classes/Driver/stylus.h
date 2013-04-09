@@ -127,8 +127,22 @@ enum  {
 	kMacroMouse
 };
 
+
+typedef struct MyReport {
+	int16_t  proximity;
+	int16_t  buttons;
+	int32_t  x;
+	int32_t  y;
+	int32_t  pressure;
+} MyReport;
+
+
+
 typedef struct {
-	CGPoint	scrPos, oldPos;				// Screen position (tracked by the tablet object)
+	CGPoint		scrPos, oldPos;			// Screen position (tracked by the tablet object)
+	IOGPoint	ioPos;
+	UInt8	subx,	suby;
+	MyReport	report;
 	struct { SInt32	x, y; } point;		// Tablet-level X / Y coordinates
 	struct { SInt32	x, y; } old;		// Old coordinates used to calculate mouse mode
 	struct { SInt32	x, y; } motion;		// Tablet-level X / Y motion
