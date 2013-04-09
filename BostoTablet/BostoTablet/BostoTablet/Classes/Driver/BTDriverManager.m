@@ -415,7 +415,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     _stylus.proximity.reserved1 = 0;
 
     // This will be replaced when a tablet is located
-    _stylus.proximity.uniqueID = 0;
+    _stylus.proximity.uniqueID = 0x0023;
 
     // Indicate which fields in the point event contain valid data. This allows
     // applications to handle devices with varying capabilities.
@@ -777,6 +777,27 @@ int fromBinary(char *s) {
 //////////////////////////////////////////////////////////////
 
 
+//TODO - rework this..
+
+- (void) postProximityEvent{
+	NXEventData	nxEvent;
+	IOGPoint newPoint = { _stylus.scrPos.x, _stylus.scrPos.y };
+
+	bzero(&nxEvent, sizeof(NXEventData));
+//	nxEvent.mouseMove.subx = _stylus.subx;
+//	nxEvent.mouseMove.suby = _stylus.suby;
+	nxEvent.mouseMove.subType = NX_SUBTYPE_TABLET_PROXIMITY;
+	bcopy(&_stylus.proximity, &nxEvent.mouseMove.tablet.proximity, sizeof(NXTabletProximityData));
+	nxEvent.mouseMove.tablet.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
+	IOHIDPostEvent(self.gEventDriver,NX_MOUSEMOVED,newPoint,&nxEvent,kNXEventDataVersion,0,0);
+
+	bzero(&nxEvent, sizeof(NXEventData));
+	bcopy(&_stylus.proximity, &nxEvent.proximity, sizeof(NXTabletProximityData));
+	nxEvent.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
+	IOHIDPostEvent(self.gEventDriver,NX_TABLETPROXIMITY,newPoint,&nxEvent,kNXEventDataVersion,0,0);
+
+}
+
 - (void)postNXEventwithType:(int)eventType subType:(SInt16)eventSubType buttonNumber:(UInt8)buttonNumber
 {
     static NXEventData eventData;
@@ -898,12 +919,15 @@ int fromBinary(char *s) {
 
     if (eventSubType == NX_SUBTYPE_TABLET_PROXIMITY)
     {
-        // we always post a proximity event individually
-        LogDebug(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
-        bcopy(&_stylus.proximity, &eventData.proximity, sizeof(NXTabletProximityData));
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
-//        dispatch_sync(dispatch_get_main_queue(),^ {
-        (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
+        [self postProximityEvent];
+//        // we always post a proximity event individually
+//        LogDebug(@"[POST] Proximity Event %d Subtype %d", NX_TABLETPROXIMITY, NX_SUBTYPE_TABLET_PROXIMITY);
+//        bcopy(&_stylus.proximity, &eventData.proximity, sizeof(NXTabletProximityData));
+////        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+////        dispatch_sync(dispatch_get_main_queue(),^ {
+//        eventData.mouseMove.tablet.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
+//
+//        (void) IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &eventData, kNXEventDataVersion, 0, 0);
 //        });
     } else
     {

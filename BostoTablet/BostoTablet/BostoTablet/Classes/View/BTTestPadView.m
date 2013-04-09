@@ -50,18 +50,21 @@
 
 - (void)mouseDown:(NSEvent *)event
 {
-    if (!self.isActive){
+    if (!self.isActive)
+    {
         return;
     }
-    [self logEvent:event];
+    [self logEvent:event withType:@"DOWN"];
     self.previousLocation = [self convertPoint:[event locationInWindow] fromView:nil];
 }
 
 - (void)mouseDragged:(NSEvent *)event
 {
-    if (!self.isActive){
+    if (!self.isActive)
+    {
         return;
     }
+    [self logEvent:event withType:@"DRAGGED"];
     BOOL isMouseDown = YES;
     while (isMouseDown)
     {
@@ -71,10 +74,12 @@
         switch ([event type])
         {
             case NSLeftMouseDragged:
+                [self logEvent:event withType:@"DRAGGED-LOOP"];
                 [self drawLineWithEvent:event];
                 break;
 
             case NSLeftMouseUp:
+                [self logEvent:event withType:@"DOWN-LOOP"];
                 isMouseDown = NO;
                 break;
 
@@ -84,23 +89,37 @@
     }
 }
 
+- (void)mouseEntered:(NSEvent *)theEvent
+{
+    [self logEvent:theEvent withType:@"entered"];
+}
+
+- (void)mouseExited:(NSEvent *)theEvent
+{
+    [self logEvent:theEvent withType:@"exited"];
+
+}
+
+
 - (void)mouseMoved:(NSEvent *)event
 {
-    if (!self.isActive){
+    if (!self.isActive)
+    {
         return;
     }
-    [self logEvent:event];
+    [self logEvent:event withType:@"Move"];
 }
 
 - (void)mouseUp:(NSEvent *)event
 {
-    if (!self.isActive){
+    if (!self.isActive)
+    {
         return;
     }
-    [self logEvent:event];
+    [self logEvent:event withType:@"UP"];
 }
 
-- (void)logEvent:(NSEvent *)event
+- (void)logEvent:(NSEvent *)event withType:(NSString *)typeName
 {
     NSPoint location = [event locationInWindow];
 
@@ -111,13 +130,14 @@
         pressure = event.pressure;
     }
 
-    LogVerbose(@"Processed event with capabilities %d clickCount %d tanPressure %f buttonNumber %d buttonMask %d",
+    LogInfo(@"[%@] cap %d cc %d pres %f bn %d bm %d",
+    typeName,
     event.capabilityMask,
     event.clickCount,
-    event.tangentialPressure,
+    event.pressure,
     event.buttonNumber,
     event.buttonMask);
-    LogVerbose(@"Location %f,%f pressure: %f", location.x, location.y, pressure);
+//    LogVerbose(@"Location %f,%f pressure: %f", location.x, location.y, pressure);
 }
 
 
