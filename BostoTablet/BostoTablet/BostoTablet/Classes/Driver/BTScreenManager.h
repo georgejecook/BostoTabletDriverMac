@@ -47,7 +47,7 @@ extern NSString *const kBTScreenManagerDidChangeScreenDetails; //dispatched when
 @property(nonatomic) CGRect screenBounds;
 @property(nonatomic, strong) NSScreen *targetScreen; //the screen we will use for the mapping
 
-- (CGPoint)mapTabletCoordinatesToDisplaySpaceWithPoint:(CGPoint)point toTabletMapping:(CGRect)tabletMapping;
+- (CGRect)mapTabletCoordinatesToDisplaySpaceWithPoint:(CGPoint)point toTabletMapping:(CGRect)tabletMapping;
 
 + (BTScreenManager *)shared;
 

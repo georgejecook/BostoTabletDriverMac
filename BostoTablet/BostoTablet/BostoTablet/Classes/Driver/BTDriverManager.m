@@ -66,6 +66,7 @@ NSString *const kBTDriverManagerDidChangeStatus = @"BTDriverManagerDidChangeStat
 //////////////////////////////////////////////////////////////
 
 static NSString *const kPressureKey = @"com.tantawowa.bostoDriver.pressureKey";
+static NSString *const kOffsetKey = @"com.tantawowa.bostoDriver.offsetKey";
 uint8_t switchToTablet[] = {0x02, 0x10, 0x01};
 
 //////////////////////////////////////////////////////////////
@@ -225,7 +226,8 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 //    self.numberOfTestBits = 16;
     NSNumber *pressureNumber = [[NSUserDefaults standardUserDefaults] objectForKey:kPressureKey];
     self.pressureDamping = pressureNumber ? [pressureNumber floatValue] : 0.5;
-
+    NSValue *offsetValue = [[NSUserDefaults standardUserDefaults] objectForKey:kOffsetKey];
+    self.cursorOffset = offsetValue ? [offsetValue pointValue]  : CGPointZero;
     return self;
 }
 
@@ -396,9 +398,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     _stylus.oldPos.y = SHRT_MIN;
 
     // The proximity record includes these identifiers
-//	_stylus.proximity.vendorID =  0x056A; // 0xBEEF;				// A made-up Vendor ID (Wacom's is 0x056A)
-//	_stylus.proximity.tabletID = 0x0001;
-//
+
     // instead of making up verndor and device ids we use
     // the ids of our detected tablet
     _stylus.proximity.vendorID = (UInt16) bostoSettings.vendorID;
@@ -421,22 +421,11 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     // Indicate which fields in the point event contain valid data. This allows
     // applications to handle devices with varying capabilities.
 
-//    _stylus.proximity.capabilityMask =
-//            NX_TABLET_CAPABILITY_DEVICEIDMASK
-//                    | NX_TABLET_CAPABILITY_ABSXMASK | NX_TABLET_CAPABILITY_ABSYMASK | NX_TABLET_CAPABILITY_BUTTONSMASK
-//                    //| NX_TABLET_CAPABILITY_TILTXMASK | NX_TABLET_CAPABILITY_TILTYMASK
-//                    | NX_TABLET_CAPABILITY_PRESSUREMASK
-//                    | NX_TABLET_CAPABILITY_TANGENTIALPRESSUREMASK
-//                    | kTransducerPressureBitMask;
-//
-
     //
     // Use Wacom-supplied names
     //
 
     _stylus.proximity.pointerType = NX_TABLET_POINTER_PEN;
-//    eventData.proximity.capabilityMask = NX_TABLET_CAPABILITY_PRESSUREMASK;
-//    eventData.proximity.capabilityMask = _stylus.proximity.capabilityMask;
     _stylus.proximity.capabilityMask = kTransducerDeviceIdBitMask | kTransducerAbsXBitMask | kTransducerAbsYBitMask | kTransducerPressureBitMask;
     _stylus.proximity.vendorPointerType = 0x0802; //0x0812;    // basic _stylus
 
@@ -449,6 +438,12 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
 //////////////////////////////////////////////////////////////
 #pragma mark private impl
 //////////////////////////////////////////////////////////////
+
+- (void)postUpdateNotification
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:kBTDriverManagerDidChangeStatus object:self];
+}
+
 
 - (IOReturn)issueCommand:(IOHIDDeviceRef)deviceRef command:(uint8_t *)command
 {
@@ -469,7 +464,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     self.currentDeviceRef = NULL;
     LogInfo(@"tablet removed - cleaned up references");
     _isConnected = NO;
-    [[NSNotificationCenter defaultCenter] postNotificationName:kBTDriverManagerDidChangeStatus object:self];
+    [self postUpdateNotification];
 }
 
 - (void)didConnectDevice:(IOHIDDeviceRef)deviceRef withContext:(void *)context result:(IOReturn)result sender:(void *)sender
@@ -488,7 +483,7 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     IOHIDDeviceScheduleWithRunLoop(self.currentDeviceRef, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     IOHIDDeviceRegisterInputReportCallback(self.currentDeviceRef, reportBuffer, 4096, theInputReportCallback, "hund katze maus");
     _isConnected = YES;
-    [[NSNotificationCenter defaultCenter] postNotificationName:kBTDriverManagerDidChangeStatus object:self];
+    [self postUpdateNotification];
 }
 
 
@@ -560,7 +555,7 @@ int fromBinary(char *s) {
     int tipPressure;
     ResetButtons;  // forget the system buttons and reconstruct them in this routine
 
-    [self calculateXYCoordsWithBits:report];
+    [self calculateXYCoordsWithReport:report];
     tipPressure = report[6] | report[7] << 8;
 
     // tablet events are scaled to 0xFFFF (16 bit), so
@@ -569,14 +564,6 @@ int fromBinary(char *s) {
 
     tipPressure = MIN(tipPressure * _pressureMod, 1023);
     //TODO look at dampening
-//    if (tipPressure < 512)
-//    {
-//        _stylus.pressure = tipPressure << 6;
-//    } else
-//    {
-//        _stylus.pressure = tipPressure << 7;
-//    }
-//        _stylus.pressure = tipPressure << 7;
 
     _stylus.pressure = tipPressure << 6;
 
@@ -610,7 +597,7 @@ int fromBinary(char *s) {
 
 }
 
-- (void)calculateXYCoordsWithBits:(uint8_t *)report
+- (void)calculateXYCoordsWithReport:(uint8_t *)report
 {
     //through trial and error I found that x starts at bit 15, and y at bit 31 - they are both 16 bits.
     int xCoord;
@@ -645,6 +632,23 @@ int fromBinary(char *s) {
 
     _stylus.motion.x = _stylus.point.x - _stylus.old.x;
     _stylus.motion.y = _stylus.point.y - _stylus.old.y;
+
+
+    CGRect mappedCoords = [self.screenManager mapTabletCoordinatesToDisplaySpaceWithPoint:CGPointMake(xCoord, yCoord)
+                                                                          toTabletMapping:self.tabletMapping];
+    if (!CGPointEqualToPoint(_cursorOffset, CGPointZero)){
+        _stylus.scrPos.x = mappedCoords.origin.x + _cursorOffset.x;
+        _stylus.scrPos.y = mappedCoords.origin.y + _cursorOffset.y;
+    } else {
+        _stylus.scrPos.x = mappedCoords.origin.x;
+        _stylus.scrPos.y = mappedCoords.origin.y;
+    }
+
+    _stylus.ioPos.x = _stylus.scrPos.x;
+    _stylus.ioPos.y = _stylus.scrPos.y;
+
+    _stylus.subx = mappedCoords.size.width;
+    _stylus.suby = mappedCoords.size.height;
 }
 
 //this method counts in reverse
@@ -673,10 +677,6 @@ int fromBinary(char *s) {
     BOOL isRightButtonDown = (_stylus.button_mask & kBitStylusButton2) == kBitStylusButton2;
     BOOL wasRightButtonDown = (_oldStylus.button_mask & kBitStylusButton2) == kBitStylusButton2;
 
-    CGPoint mappedPoint = [self.screenManager mapTabletCoordinatesToDisplaySpaceWithPoint:CGPointMake(_stylus.point.x, _stylus.point.y)
-                                                                          toTabletMapping:self.tabletMapping];
-    _stylus.scrPos.x = mappedPoint.x;
-    _stylus.scrPos.y = mappedPoint.y;
 //    LogDebug(@"[[[[mapped pos %d,%d to %f,%f", _stylus.point.x, _stylus.point.y, mappedPoint.x, mappedPoint.y);
 
     // Has the stylus moved in or out of range?
@@ -753,64 +753,65 @@ int fromBinary(char *s) {
 
 //TODO - rework this..
 
-- (void) postProximityEvent{
-	NXEventData	nxEvent;
-	IOGPoint newPoint = { _stylus.scrPos.x, _stylus.scrPos.y };
+- (void)postProximityEvent
+{
+    NXEventData nxEvent;
+    IOGPoint newPoint = {_stylus.scrPos.x, _stylus.scrPos.y};
 
-	bzero(&nxEvent, sizeof(NXEventData));
-	nxEvent.mouseMove.subx = _stylus.subx;
-	nxEvent.mouseMove.suby = _stylus.suby;
-	nxEvent.mouseMove.subType = NX_SUBTYPE_TABLET_PROXIMITY;
-	bcopy(&_stylus.proximity, &nxEvent.mouseMove.tablet.proximity, sizeof(NXTabletProximityData));
-	nxEvent.mouseMove.tablet.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
-	IOHIDPostEvent(self.gEventDriver,NX_MOUSEMOVED,newPoint,&nxEvent,kNXEventDataVersion,0,0);
+    bzero(&nxEvent, sizeof(NXEventData));
+    nxEvent.mouseMove.subx = _stylus.subx;
+    nxEvent.mouseMove.suby = _stylus.suby;
+    nxEvent.mouseMove.subType = NX_SUBTYPE_TABLET_PROXIMITY;
+    bcopy(&_stylus.proximity, &nxEvent.mouseMove.tablet.proximity, sizeof(NXTabletProximityData));
+    nxEvent.mouseMove.tablet.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
+    IOHIDPostEvent(self.gEventDriver, NX_MOUSEMOVED, newPoint, &nxEvent, kNXEventDataVersion, 0, 0);
 
-	bzero(&nxEvent, sizeof(NXEventData));
-	bcopy(&_stylus.proximity, &nxEvent.proximity, sizeof(NXTabletProximityData));
-	nxEvent.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
-	IOHIDPostEvent(self.gEventDriver,NX_TABLETPROXIMITY,newPoint,&nxEvent,kNXEventDataVersion,0,0);
+    bzero(&nxEvent, sizeof(NXEventData));
+    bcopy(&_stylus.proximity, &nxEvent.proximity, sizeof(NXTabletProximityData));
+    nxEvent.proximity.enterProximity = _stylus.off_tablet ? 0 : 1;
+    IOHIDPostEvent(self.gEventDriver, NX_TABLETPROXIMITY, newPoint, &nxEvent, kNXEventDataVersion, 0, 0);
 }
 
 
-- (void)postMoveOrDragEvent:(UInt32) eventType
+- (void)postMoveOrDragEvent:(UInt32)eventType
 {
-	NXEventData	nxEvent;
-	IOGPoint newPoint = { _stylus.scrPos.x, _stylus.scrPos.y };
+    NXEventData nxEvent;
+    IOGPoint newPoint = {_stylus.scrPos.x, _stylus.scrPos.y};
 
-	bzero(&nxEvent, sizeof(NXEventData));
-	nxEvent.mouseMove.dx = (SInt32)(_stylus.ioPos.x - _oldStylus.ioPos.x);
-	nxEvent.mouseMove.dy = (SInt32)(_stylus.ioPos.y - _oldStylus.ioPos.y);
-	nxEvent.mouseMove.subType = NX_SUBTYPE_TABLET_POINT;
-	nxEvent.mouseMove.subx = _stylus.subx;
-	nxEvent.mouseMove.suby = _stylus.suby;
-	nxEvent.mouseMove.tablet.point.x = _stylus.report.x;
-	nxEvent.mouseMove.tablet.point.y = _stylus.report.y;
-	nxEvent.mouseMove.tablet.point.buttons = _stylus.report.buttons;
-	nxEvent.mouseMove.tablet.point.pressure = _stylus.pressure;
-	nxEvent.mouseMove.tablet.point.deviceID = _stylus.proximity.deviceID;
-	IOHIDPostEvent(self.gEventDriver,eventType,newPoint,&nxEvent,kNXEventDataVersion,0,kIOHIDSetCursorPosition);
+    bzero(&nxEvent, sizeof(NXEventData));
+    nxEvent.mouseMove.dx = (SInt32) (_stylus.ioPos.x - _oldStylus.ioPos.x);
+    nxEvent.mouseMove.dy = (SInt32) (_stylus.ioPos.y - _oldStylus.ioPos.y);
+    nxEvent.mouseMove.subType = NX_SUBTYPE_TABLET_POINT;
+    nxEvent.mouseMove.subx = _stylus.subx;
+    nxEvent.mouseMove.suby = _stylus.suby;
+    nxEvent.mouseMove.tablet.point.x = _stylus.report.x;
+    nxEvent.mouseMove.tablet.point.y = _stylus.report.y;
+    nxEvent.mouseMove.tablet.point.buttons = _stylus.report.buttons;
+    nxEvent.mouseMove.tablet.point.pressure = _stylus.pressure;
+    nxEvent.mouseMove.tablet.point.deviceID = _stylus.proximity.deviceID;
+    IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &nxEvent, kNXEventDataVersion, 0, kIOHIDSetCursorPosition);
 
 }
 
-- (void)postButtonEvent:(UInt32)eventType withButtonNumber:(UInt8) btnNumber
+- (void)postButtonEvent:(UInt32)eventType withButtonNumber:(UInt8)btnNumber
 {
-	NXEventData	nxEvent;
-	IOGPoint newPoint = { _stylus.scrPos.x, _stylus.scrPos.y };
+    NXEventData nxEvent;
+    IOGPoint newPoint = {_stylus.scrPos.x, _stylus.scrPos.y};
 
-	bzero(&nxEvent, sizeof(NXEventData));
-	nxEvent.mouse.click			= 0;
-	nxEvent.mouse.subx			= _stylus.subx;
-	nxEvent.mouse.suby			= _stylus.suby;
-	nxEvent.mouse.eventNum		= _eventNumber++;
-	nxEvent.mouse.pressure		= _stylus.pressure;
-	nxEvent.mouse.buttonNumber  = btnNumber;
-	nxEvent.mouse.subType		= NX_SUBTYPE_TABLET_POINT;
-	nxEvent.mouse.tablet.point.x = _stylus.report.x;
-	nxEvent.mouse.tablet.point.y = _stylus.report.y;
-	nxEvent.mouse.tablet.point.buttons = _stylus.report.buttons;
-	nxEvent.mouse.tablet.point.pressure = _stylus.report.pressure;
-	nxEvent.mouse.tablet.point.deviceID = _stylus.proximity.deviceID;
-	IOHIDPostEvent(self.gEventDriver,eventType,newPoint,&nxEvent,kNXEventDataVersion,0,0);
+    bzero(&nxEvent, sizeof(NXEventData));
+    nxEvent.mouse.click = 0;
+    nxEvent.mouse.subx = _stylus.subx;
+    nxEvent.mouse.suby = _stylus.suby;
+    nxEvent.mouse.eventNum = _eventNumber++;
+    nxEvent.mouse.pressure = _stylus.pressure;
+    nxEvent.mouse.buttonNumber = btnNumber;
+    nxEvent.mouse.subType = NX_SUBTYPE_TABLET_POINT;
+    nxEvent.mouse.tablet.point.x = _stylus.report.x;
+    nxEvent.mouse.tablet.point.y = _stylus.report.y;
+    nxEvent.mouse.tablet.point.buttons = _stylus.report.buttons;
+    nxEvent.mouse.tablet.point.pressure = _stylus.report.pressure;
+    nxEvent.mouse.tablet.point.deviceID = _stylus.proximity.deviceID;
+    IOHIDPostEvent(self.gEventDriver, eventType, newPoint, &nxEvent, kNXEventDataVersion, 0, 0);
 }
 
 
@@ -835,75 +836,6 @@ int fromBinary(char *s) {
     _tabletMapping = CGRectMake(x, y, w, h);
 }
 
-//////////////////////////////////////////////////////////////
-#pragma mark debugging code I used to figure out the values in the report
-//////////////////////////////////////////////////////////////
-
-
-//debugging to help us work out the report bytes (it seems that the bytes are somewhat up the spout on their input report
-//I'm leaving debug code in here (commented out)in case others have slightly different bosto monitors
-//this was in init
-//    [NSEvent addGlobalMonitorForEventsMatchingMask:(NSKeyUpMask) handler:^(NSEvent *event) {
-//        if (event.keyCode == 126)
-//        {
-//            self.testStartBit++;
-//            LogDebug(@"testStartBit now %d", self.testStartBit);
-//        } else if (event.keyCode == 125)
-//        {
-//            self.testStartBit--;
-//            LogDebug(@"testStartBit now %d", self.testStartBit);
-//        } else if (event.keyCode == 124)
-//        {
-//            self.numberOfTestBits++;
-//            LogDebug(@"numbits now %d", self.numberOfTestBits);
-//        } else if (event.keyCode == 123)
-//        {
-//            self.numberOfTestBits--;
-//            LogDebug(@"numberOfTestBits now %d", self.numberOfTestBits);
-//        }
-//    }];
-
-
-/**
-* code I used to work out what was actually in the report
-*
-- (void)didReceiveReport:(uint8_t *)report withID:(uint32_t)reportID
-{
-
-    UInt16 bm = 0; // button mask
-
-
-    int xCoord;
-    int yCoord;
-    int tipPressure;
-
-    ResetButtons;  // forget the system buttons and reconstruct them in this routine
-
-    NSMutableString *bits = [@"" mutableCopy];
-    NSMutableString *counter = [@"" mutableCopy];
-    NSMutableString *line = [@"" mutableCopy];
-    NSMutableString *byte = [@"" mutableCopy];
-    for (int i = 0; i < 8; i++)
-    {
-        for (int j = 0; j < 8; j++)
-        {
-            [bits appendFormat:@"%d", getBit(report[i], j)];
-            [counter appendFormat:@"%d", j];
-            [line appendString:@"-"];
-        }
-        [byte appendFormat:@"byte %d  ", i];
-    }
-
-    NSString *bitString = [bits substringWithRange:NSMakeRange(self.testStartBit, _numberOfTestBits)];
-    xCoord = fromBinary([bitString UTF8String]);
-    NSString *reversedBitString = [self reverseString:bitString];
-    int reversedValue = fromBinary([reversedBitString UTF8String]);
-
-    tipPressure = report[6] | report[7] << 8;
-    LogDebug(@"start %d: %d (%@), altX %d (%@)", self.testStartBit, xCoord, bitString, reversedValue, reversedBitString);
-
-*/
-
 
 //////////////////////////////////////////////////////////////
 #pragma mark public api 
@@ -922,7 +854,7 @@ int fromBinary(char *s) {
     _pressureMod = 0.5 - self.pressureDamping;
     _pressureMod = 1 - _pressureMod;
     LogInfo(@"pressure damping %f mod is %f", pressureDamping, _pressureMod);
-
+    [self postUpdateNotification];
 }
 
 
@@ -938,6 +870,16 @@ int fromBinary(char *s) {
     [self closeHIDService];
     [self initializeHID];
 
+}
+
+- (void)setCursorOffset:(CGPoint)cursorOffset
+{
+    _cursorOffset = cursorOffset;
+    NSValue *offsetObject = [NSValue valueWithPoint:cursorOffset];
+    [[NSUserDefaults standardUserDefaults] setObject:offsetObject forKey:kPressureKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    LogInfo(@"offset set to %@", NSStringFromPoint(cursorOffset));
+    [self postUpdateNotification];
 }
 
 - (void)sendMouseUpEventToUnblockTheMouse

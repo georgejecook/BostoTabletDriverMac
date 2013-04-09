@@ -157,7 +157,7 @@
     float brushSize = kBrushSize * event.pressure;
 
     [self lockFocus];
-    [[[NSColor blueColor] colorWithAlphaComponent:1.0] set];
+    [[[NSColor blueColor] colorWithAlphaComponent:0.1 + (0.4 * event.pressure)] set];
 
     [path setLineWidth:brushSize];
     [path setLineCapStyle:NSRoundLineCapStyle];

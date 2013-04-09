@@ -303,6 +303,35 @@
 
 }
 
+- (IBAction)didClickCusrorButton:(id)sender
+{
+    NSButton *button = sender;
+    CGPoint currentCursor = [BTDriverManager shared].cursorOffset;
+    switch (button.tag){
+        case 1:
+            currentCursor.y -=1;
+            break;
+        case 2:
+            currentCursor.x +=1;
+            break;
+        case 3:
+            currentCursor.y +=1;
+            break;
+        case 4:
+            currentCursor.x -=1;
+            break;
+        case 5:
+            currentCursor.x = 0;
+            currentCursor.y = 0;
+            break;
+        default:
+            break;
+    }
+    [BTDriverManager shared].cursorOffset = currentCursor;
+
+}
+
+
 
 
 
@@ -341,6 +370,8 @@
 - (void)didChangeDriverStatus:(id)didChangeScreenDetails
 {
     self.statusLabel.stringValue = [BTDriverManager shared].isConnected ? @"Connected" : @"Not Connected";
+    CGPoint cursorOffset = [BTDriverManager shared].cursorOffset;
+    self.cursorLabel.stringValue = [NSString stringWithFormat:@"Offset %.0f,%.0f", cursorOffset.x, cursorOffset.y];
 }
 
 - (void)didChangeScreenDetails:(id)didChangeScreenDetails

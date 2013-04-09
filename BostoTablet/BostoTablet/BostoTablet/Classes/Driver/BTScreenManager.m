@@ -142,7 +142,7 @@ NSString *const kBTScreenManagerDidChangeScreenDetails = @"BTScreenManagerDidCha
 #pragma mark public api
 //////////////////////////////////////////////////////////////
 
-- (CGPoint)mapTabletCoordinatesToDisplaySpaceWithPoint:(CGPoint)point toTabletMapping:(CGRect)tabletMapping
+- (CGRect)mapTabletCoordinatesToDisplaySpaceWithPoint:(CGPoint)point toTabletMapping:(CGRect)tabletMapping
 {
     CGFloat swide = _screenMapping.size.width, shigh = _screenMapping.size.height,
             twide = tabletMapping.size.width, thigh = tabletMapping.size.height;
@@ -174,7 +174,7 @@ NSString *const kBTScreenManagerDidChangeScreenDetails = @"BTScreenManagerDidCha
     nx = (sx1 + (x - tx1) * hratio);
     ny = (sy1 + (y - ty1) * vratio);
 
-    return CGPointMake(nx + _screenBounds.origin.x, ny + _screenBounds.origin.y);
+    return CGRectMake(nx + _screenBounds.origin.x, ny + _screenBounds.origin.y, (UInt8)((nx-(int)nx)*256), (UInt8)((ny-(int)ny)*256));
 }
 
 - (void)setScreenMapping:(CGRect)value
