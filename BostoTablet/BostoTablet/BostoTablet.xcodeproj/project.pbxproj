@@ -18,6 +18,7 @@
 		17364219972B2F8DA2535D73 /* NSScreen+BTAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364FC270A04EACA7EC1C5D /* NSScreen+BTAdditions.m */; };
 		1736427A062656912A189B38 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1736451F3DCEB16888DB5A06 /* SenTestingKit.framework */; };
 		173642E7E778CBEB45C88223 /* BTBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */; };
+		17364326693BA08D0A4BF6B4 /* STPrivilegedTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736475F9029C944783A5815 /* STPrivilegedTask.m */; };
 		173643583AA8A710F7E29799 /* BTTestPadView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364DAD8607DD8665B8B3F3 /* BTTestPadView.m */; };
 		1736437B3415A24BFAEB69B8 /* BTDriverManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364FF7F62CC5126E77A0DC /* BTDriverManager.m */; };
 		173643A5F166D64284467CB4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 17364923EF230A93D3012FE5 /* main.m */; };
@@ -39,6 +40,7 @@
 		17364986DCC5A909A8D1D356 /* refreshButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 173649FFEF5A752CB0CE5BEF /* refreshButton.png */; };
 		1736499DACE9D1AF89B4ACA1 /* StatusHighlighted@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 1736469D387911CBBF84A398 /* StatusHighlighted@2x.png */; };
 		17364A013639AD68846D3C60 /* BTStatusItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173642455A96C9BBCB8DE6CD /* BTStatusItemView.m */; };
+		17364A7D260A5F429CE0E5F8 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17364FDFE4B0AD1EBC28CD0F /* Security.framework */; };
 		17364AC9C57A275BAB943FAE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 17364EEC9D61A3CBBEBF8DD5 /* InfoPlist.strings */; };
 		17364B08E4E1ECD66A00AE67 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 17364B47701F1666F770E4F1 /* IOKit.framework */; };
 		17364B40E64500590E704258 /* tablet.png in Resources */ = {isa = PBXBuildFile; fileRef = 17364F7D2B6B464E520C18E8 /* tablet.png */; };
@@ -55,6 +57,7 @@
 		17364F2F4F0AF827422D2847 /* Status.png in Resources */ = {isa = PBXBuildFile; fileRef = 173649BA67F3B2B8AE34D265 /* Status.png */; };
 		17364F8F57F33BB1AD785A6B /* BTPanelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 173645280884FDC56218622B /* BTPanelView.m */; };
 		17364FB8B110F4C74270AC43 /* BTAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 173648D4FD3AC4A03771A959 /* BTAppDelegate.m */; };
+		17364FC3D4F5D4AD197AD707 /* STPrivilegedTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 1736475F9029C944783A5815 /* STPrivilegedTask.m */; };
 		E133B3D5170DAAAE002B9E4A /* Panel.xib in Resources */ = {isa = PBXBuildFile; fileRef = E133B3D3170DAAAE002B9E4A /* Panel.xib */; };
 		E194A9551713857500AAD7A0 /* bosto.icns in Resources */ = {isa = PBXBuildFile; fileRef = E194A9541713857500AAD7A0 /* bosto.icns */; };
 /* End PBXBuildFile section */
@@ -95,6 +98,7 @@
 		17364699E091842B3C29A97C /* BostoTablet-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BostoTablet-Prefix.pch"; sourceTree = "<group>"; };
 		1736469D387911CBBF84A398 /* StatusHighlighted@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StatusHighlighted@2x.png"; sourceTree = "<group>"; };
 		1736473F07DBC8A9A07C10A0 /* BTMenubarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTMenubarController.h; sourceTree = "<group>"; };
+		1736475F9029C944783A5815 /* STPrivilegedTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STPrivilegedTask.m; sourceTree = "<group>"; };
 		1736489098E6E11D200B9A29 /* NSScreen+BTAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScreen+BTAdditions.h"; sourceTree = "<group>"; };
 		173648912D6C81B1592F4186 /* StatusHighlighted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = StatusHighlighted.png; sourceTree = "<group>"; };
 		173648D4FD3AC4A03771A959 /* BTAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BTAppDelegate.m; sourceTree = "<group>"; };
@@ -105,6 +109,7 @@
 		17364B173454460E34DEB15D /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		17364B47701F1666F770E4F1 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		17364B69A074685A1A871F07 /* BostoTabletTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = "BostoTabletTests-Info.plist"; sourceTree = "<group>"; };
+		17364B7A7629E3CFFD696C62 /* STPrivilegedTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = STPrivilegedTask.h; sourceTree = "<group>"; };
 		17364B8E14D17D0FB6E85C73 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		17364BCB949AC406EDA5C6E0 /* BTBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTBackgroundView.m; sourceTree = "<group>"; };
 		17364BDA3281E924E6D4B7B1 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -119,6 +124,7 @@
 		17364F67A363FBE1CECBD6AC /* BTStatusItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTStatusItemView.h; sourceTree = "<group>"; };
 		17364F7D2B6B464E520C18E8 /* tablet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tablet.png; sourceTree = "<group>"; };
 		17364FC270A04EACA7EC1C5D /* NSScreen+BTAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScreen+BTAdditions.m"; sourceTree = "<group>"; };
+		17364FDFE4B0AD1EBC28CD0F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		17364FEA2AA2FEF15569AE62 /* BTBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTBackgroundView.h; sourceTree = "<group>"; };
 		17364FF7F62CC5126E77A0DC /* BTDriverManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BTDriverManager.m; sourceTree = "<group>"; };
 		17364FFAA0D90997DA518049 /* stylus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stylus.h; sourceTree = "<group>"; };
@@ -134,6 +140,7 @@
 				173645FC68326F183D6879C9 /* Cocoa.framework in Frameworks */,
 				17364B08E4E1ECD66A00AE67 /* IOKit.framework in Frameworks */,
 				1736471CCE7208ABB2171CDD /* CoreFoundation.framework in Frameworks */,
+				17364A7D260A5F429CE0E5F8 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,6 +173,7 @@
 				1736451F3DCEB16888DB5A06 /* SenTestingKit.framework */,
 				17364B47701F1666F770E4F1 /* IOKit.framework */,
 				17364B1682DC1A3110F806F2 /* CoreFoundation.framework */,
+				17364FDFE4B0AD1EBC28CD0F /* Security.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -256,6 +264,8 @@
 				17364187C9AFB2369B347087 /* BTAppDelegate.h */,
 				173643E61D67D596147B2AE1 /* BTMacros.h */,
 				173640E4BD6CD8E32752C542 /* Logging.h */,
+				17364B7A7629E3CFFD696C62 /* STPrivilegedTask.h */,
+				1736475F9029C944783A5815 /* STPrivilegedTask.m */,
 			);
 			path = Application;
 			sourceTree = "<group>";
@@ -462,6 +472,7 @@
 				17364E1A9B1B5FBB06ADA0C1 /* BTTestPadView.m in Sources */,
 				17364BB890CBAD9573E031F1 /* BTCustomCursorButton.m in Sources */,
 				17364219972B2F8DA2535D73 /* NSScreen+BTAdditions.m in Sources */,
+				17364FC3D4F5D4AD197AD707 /* STPrivilegedTask.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,6 +492,7 @@
 				173643583AA8A710F7E29799 /* BTTestPadView.m in Sources */,
 				173641B66777B2CA1A8CFB05 /* BTCustomCursorButton.m in Sources */,
 				17364C14C67B7FEA617AF767 /* NSScreen+BTAdditions.m in Sources */,
+				17364326693BA08D0A4BF6B4 /* STPrivilegedTask.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

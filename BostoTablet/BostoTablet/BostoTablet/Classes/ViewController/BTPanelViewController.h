@@ -51,4 +51,5 @@
 - (IBAction)didClickGeorge:(id)sender;
 
 - (IBAction)didClickCusrorButton:(id)sender;
+- (IBAction)didClickImproveSpeed:(id)sender;
 @end

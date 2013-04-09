@@ -48,8 +48,39 @@
 @synthesize menubarController = _menubarController;
 
 
+- (void)applicationDidBecomeActive:(NSNotification *)notification
+{
+    if (!self.menubarController.hasActiveIcon){
+        [self.panelController openPanel];
+    }
+}
+
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    NSArray *apps = [NSRunningApplication runningApplicationsWithBundleIdentifier:[[NSBundle mainBundle]
+                                                                                             bundleIdentifier]];
+
+    if (apps.count > 1)
+    {
+        NSRunningApplication *otherApp;
+        for (NSRunningApplication *app in apps){
+            if (app.processIdentifier !=  [[NSProcessInfo processInfo] processIdentifier]){
+                otherApp = app;
+            }
+
+        }
+        [otherApp activateWithOptions:NSApplicationActivateAllWindows];
+//        [[NSAlert alertWithMessageText:[NSString stringWithFormat:@"Another copy of %@ is already running.",
+//                                                                  [[NSBundle mainBundle]
+//                                                                             objectForInfoDictionaryKey:(NSString *) kCFBundleNameKey]]
+//                         defaultButton:nil
+//                       alternateButton:nil
+//                           otherButton:nil
+//             informativeTextWithFormat:@"This copy will now quit."] runModal];
+
+        [NSApp terminate:nil];
+    }
     // Insert code here to initialize your application
     NSLog(@"created driver manager %@", [BTDriverManager shared]);
     // Install icon into the menu bar

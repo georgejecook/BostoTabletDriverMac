@@ -7,6 +7,7 @@
 #import "BTTestPadView.h"
 #import "BTCustomCursorButton.h"
 #import "NSScreen+BTAdditions.h"
+#import "STPrivilegedTask.h"
 
 #define OPEN_DURATION .15
 #define CLOSE_DURATION .1
@@ -330,6 +331,18 @@
     [BTDriverManager shared].cursorOffset = currentCursor;
 
 }
+
+- (IBAction)didClickImproveSpeed:(id)sender
+{
+
+
+    int pid = [[NSProcessInfo processInfo] processIdentifier];
+    NSArray *arguments = @[@"renice", @"-20", @"-p", [NSString stringWithFormat:@"%d", pid]];
+    STPrivilegedTask *task = [[STPrivilegedTask alloc]
+                                                initWithLaunchPath:@"/usr/bin/sudo" arguments:arguments];
+    [task launch];
+}
+
 
 
 
