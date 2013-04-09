@@ -1,6 +1,6 @@
 BostoTabletDriverMac
 ====================
-##UPDATE: I have a binary distribution for anyone brave to try out.
+##UPDATE: Release 0.4 is ready and is looking pretty good
 
 Installer file here: [PackageInstaller](https://github.com/georgejecook/BostoTabletDriverMac/blob/master/dist/BostoTabletDriverInstaller.pkg?raw=true) 
 Run the installer, and it will install the bostoTablet driver to you /Applications folder. When you run it, you're pen should work - and you should see the monitor icon up the top in your status bar (note if you are in an application with lost of menu options, it might not appear - so you might want to alt-tab to finder, of something like that if you can't see it).
@@ -9,12 +9,19 @@ It might be that 19ma will work too.. you can always try.
 
 ###Status:
 
-* Does not work in photoshop,
-* No pressure in corel painter,
+* Works on photoshop CS6, corelpainter, and other graphics apps
+* It is fast, and also includes a feature to make it faster… there's a button on the settings panel which will increase the processes priority; making it faster (your admin password is required)
+* can edit pressure,
+* Can edit the cursor offset,
+* Includes a "test pad" for testing the pen settings,
+* Automatically checks if it's already running if you accidentally try to run it several times,
 * Pressure is not normalized - can lead to heavy line starts/endings,
 * Position is not normalized - can be quite jaggly when drawing slowly.
+* Sometimes you can get a bogus line being drawn : I think it's because I screw up a mouse up event somewhere - I'll debug it over time.
 
-The last 2 items on that list are my priority items.
+The last 3 items on that list are my priority items.
+
+Special Thanks to Udo Killermann, who is a thouroughly nice chap who made a lot of code available to me and gave me lots of advice. If I lived near you : I'd buy you a beer Udo!!
 
 
 ##Unofficial Tablet Driver for Bosto 19MB tablet on mac.
@@ -44,23 +51,14 @@ I have also put the enitre callback for the pen in GCD asynch blocks to get repo
 
 Status
 ------
-The pen works really well, and is fast and has all pressure levels. It works flawlessly with flash CS5.1, and autodesk sketchbook, and a suite of wacom test utilities.
 
-The pen also works completely fine alongside my wacom tablet (I have both plugged in at the same time)
-
-However, I currently have problems with Photoshop CS5.1 and Painter 12.
-
-I have raised questions on relevant forums and I'm seeking more information on those:
-
-* ([http://forums.adobe.com/message/5154023#5154023](http://forums.adobe.com/message/5154023#5154023))
-* ([http://painterfactory.com/forums/p/5363/24126.aspx#24126](http://painterfactory.com/forums/p/5363/24126.aspx#24126))
 
 Roadmap
 ------
 
-* add better UI (hide the main window, and add status bar icon),
-* add features to control pressure resistence,
-* add ability to function with multiple screens,
+* [DONE]add better UI (hide the main window, and add status bar icon),
+* [DONE]add features to control pressure resistence,
+* [DONE]add ability to function with multiple screens,
 * Refactor code to make it easier for other devs to add other bosto tablets.
 
-Again, I'd like to say thanks to the author of tablet magic, and the Udo Killerman.
+Again, I'd like to say thanks to the author of tablet magic, and to Udo Killerman.
