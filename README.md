@@ -1,7 +1,23 @@
 BostoTabletDriverMac
 ====================
+##UPDATE: I have a binary distribution for anyone brave to try out.
 
-Unofficial Tablet Driver for Bosto tablets on mac.
+Installer file here: [PackageInstaller](https://github.com/georgejecook/BostoTabletDriverMac/blob/master/dist/BostoTabletDriverInstaller.pkg?raw=true) 
+Run the installer, and it will install the bostoTablet driver to you /Applications folder. When you run it, you're pen should work - and you should see the monitor icon up the top in your status bar (note if you are in an application with lost of menu options, it might not appear - so you might want to alt-tab to finder, of something like that if you can't see it).
+
+It might be that 19ma will work too.. you can always try.
+
+###Status:
+
+* Does not work in photoshop,
+* No pressure in corel painter,
+* Pressure is not normalized - can lead to heavy line starts/endings,
+* Position is not normalized - can be quite jaggly when drawing slowly.
+
+The last 2 items on that list are my priority items.
+
+
+##Unofficial Tablet Driver for Bosto 19MB tablet on mac.
 
 The bosto tablet is a wonderful cheap cintiq clone ([http://bosto-tablet.com](http://bosto-tablet.com)). However, it only has driver support for windows.
 
