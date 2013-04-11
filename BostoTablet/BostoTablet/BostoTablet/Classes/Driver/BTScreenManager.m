@@ -249,4 +249,5 @@ NSString *const kBTScreenManagerDidChangeScreenDetails = @"BTScreenManagerDidCha
             _screenMapping.size.width, _screenMapping.size.height);
 }
 
+
 @end

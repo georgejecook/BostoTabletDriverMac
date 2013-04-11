@@ -51,6 +51,7 @@ extern NSString *const kBTDriverManagerDidChangeStatus; //listen to this if you 
 
 @property(nonatomic, assign) float pressureDamping;
 @property(nonatomic, assign) CGPoint cursorOffset;
+@property(nonatomic, assign) int smoothingLevel; // values are 1, 2, 4, 8, 16
 
 - (void)sendMouseUpEventToUnblockTheMouse; // 0.5 is normal, < 0.5 == stronger lines, > 0.5 = weaker lines
 @end

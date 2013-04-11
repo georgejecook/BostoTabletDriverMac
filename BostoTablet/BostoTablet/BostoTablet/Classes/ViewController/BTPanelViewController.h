@@ -23,6 +23,7 @@
 @property(nonatomic, weak) IBOutlet NSTextField *statusLabel;
 @property(nonatomic, weak) IBOutlet NSTextField *cursorLabel;
 @property(nonatomic, weak) IBOutlet NSComboBox *displaysCombo;
+@property(nonatomic, weak) IBOutlet NSSlider *smoothingSlider;
 @property(nonatomic, weak) IBOutlet NSSlider *pressureSlider;
 @property(nonatomic, weak) IBOutlet BTTestPadView *testPadView;
 @property(nonatomic, weak) IBOutlet BTCustomCursorButton *refreshButton;
@@ -39,6 +40,7 @@
 - (void)closePanel;
 
 - (IBAction)didChangePressureSlider:(id)sender;
+- (IBAction)didChangeSmoothingSlider:(id)sender;
 
 - (IBAction)didClickClearTestPad:(id)sender;
 

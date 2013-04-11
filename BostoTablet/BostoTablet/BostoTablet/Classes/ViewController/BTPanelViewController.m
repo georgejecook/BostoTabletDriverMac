@@ -107,6 +107,8 @@
     [self didChangeDriverStatus:nil];
 
     self.pressureSlider.floatValue = [BTDriverManager shared].pressureDamping;
+    self.smoothingSlider.intValue = [BTDriverManager shared].smoothingLevel;
+
     self.georgeButton.cursor = [NSCursor pointingHandCursor];
     self.githubLinkButton.cursor = [NSCursor pointingHandCursor];
     self.refreshButton.cursor = [NSCursor pointingHandCursor];
@@ -274,6 +276,12 @@
     [BTDriverManager shared].pressureDamping = self.pressureSlider.floatValue;
 }
 
+- (IBAction)didChangeSmoothingSlider:(id)sender
+{
+    [BTDriverManager shared].smoothingLevel = self.smoothingSlider.intValue;
+}
+
+
 - (IBAction)didClickClearTestPad:(id)sender
 {
     [self.testPadView clearDisplay];
@@ -401,5 +409,8 @@
     }
 }
 
+//////////////////////////////////////////////////////////////
+#pragma mark private impl
+//////////////////////////////////////////////////////////////
 
 @end

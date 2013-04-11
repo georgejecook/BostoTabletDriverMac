@@ -67,6 +67,7 @@ NSString *const kBTDriverManagerDidChangeStatus = @"BTDriverManagerDidChangeStat
 
 static NSString *const kPressureKey = @"com.tantawowa.bostoDriver.pressureKey";
 static NSString *const kOffsetKey = @"com.tantawowa.bostoDriver.offsetKey";
+static NSString *const kSmoothingKey = @"com.tantawowa.bostoDriver.smoothingKey";
 uint8_t switchToTablet[] = {0x02, 0x10, 0x01};
 
 //////////////////////////////////////////////////////////////
@@ -183,6 +184,27 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
     });
 }
 
+#define ringLength 32
+int ringDepth;
+
+// x,y coordinates and pressure level
+int X[ringLength] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int Y[ringLength] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int P[ringLength] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+
+int headX = 0;
+int tailX;
+long accuX = 0;
+
+int headY = 0;
+int tailY;
+long accuY = 0;
+
+int headP = 0;
+int tailP;
+long accuP = 0;
+
 //////////////////////////////////////////////////////////////
 #pragma mark impl 
 //////////////////////////////////////////////////////////////
@@ -221,13 +243,23 @@ void theInputReportCallback(void *context, IOReturn inResult, void *inSender, IO
         self.mainRunLoop = CFRunLoopGetCurrent();
         self.isBackgroundLoopActive = YES;
         [self performSelectorInBackground:@selector(runDriverInBackground) withObject:nil];
-    }
 //    self.testStartBit = 8;
 //    self.numberOfTestBits = 16;
-    NSNumber *pressureNumber = [[NSUserDefaults standardUserDefaults] objectForKey:kPressureKey];
-    self.pressureDamping = pressureNumber ? [pressureNumber floatValue] : 0.5;
-    NSValue *offsetValue = [[NSUserDefaults standardUserDefaults] objectForKey:kOffsetKey];
-    self.cursorOffset = offsetValue ? [offsetValue pointValue]  : CGPointZero;
+        NSNumber *pressureNumber = [[NSUserDefaults standardUserDefaults] objectForKey:kPressureKey];
+        self.pressureDamping = pressureNumber ? [pressureNumber floatValue] : 0.5;
+
+        NSNumber *smoothingNumber = [[NSUserDefaults standardUserDefaults] objectForKey:kSmoothingKey];
+        self.smoothingLevel = smoothingNumber ? [smoothingNumber intValue] : 4;
+
+        NSValue *offsetValue = [[NSUserDefaults standardUserDefaults] objectForKey:kOffsetKey];
+        self.cursorOffset = offsetValue ? [offsetValue pointValue] : CGPointZero;
+
+        tailX = ringDepth;
+        tailY = ringDepth;
+        tailP = ringDepth;
+
+    }
+
     return self;
 }
 
@@ -626,9 +658,23 @@ int fromBinary(char *s) {
     _stylus.old.x = _stylus.point.x;
     _stylus.old.y = _stylus.point.y;
 
+    //here we smooth the values out (to avoid jitter)
+    X[headX] = xCoord;
+
+    accuX += X[headX++] - X[tailX++];
+    headX %= (ringDepth << 1);
+    tailX %= (ringDepth << 1);
+
+    Y[headY] = yCoord;
+
+    accuY += Y[headY++] - Y[tailY++];
+    headY %= (ringDepth << 1);
+    tailY %= (ringDepth << 1);
+
+
     // store new postion
-    _stylus.point.x = xCoord;
-    _stylus.point.y = yCoord;
+    _stylus.point.x = accuX >> _smoothingLevel;
+    _stylus.point.y = accuY >> _smoothingLevel;
 
     _stylus.motion.x = _stylus.point.x - _stylus.old.x;
     _stylus.motion.y = _stylus.point.y - _stylus.old.y;
@@ -636,13 +682,18 @@ int fromBinary(char *s) {
 
     CGRect mappedCoords = [self.screenManager mapTabletCoordinatesToDisplaySpaceWithPoint:CGPointMake(xCoord, yCoord)
                                                                           toTabletMapping:self.tabletMapping];
-    if (!CGPointEqualToPoint(_cursorOffset, CGPointZero)){
+    if (!CGPointEqualToPoint(_cursorOffset, CGPointZero))
+    {
         _stylus.scrPos.x = mappedCoords.origin.x + _cursorOffset.x;
         _stylus.scrPos.y = mappedCoords.origin.y + _cursorOffset.y;
-    } else {
+    } else
+    {
         _stylus.scrPos.x = mappedCoords.origin.x;
         _stylus.scrPos.y = mappedCoords.origin.y;
     }
+
+
+    //
 
     _stylus.ioPos.x = _stylus.scrPos.x;
     _stylus.ioPos.y = _stylus.scrPos.y;
@@ -845,6 +896,30 @@ int fromBinary(char *s) {
 {
     return _isConnected;
 }
+
+- (void)setSmoothingLevel:(int)smoothingLevel
+{
+    _smoothingLevel = smoothingLevel;
+    ringDepth = 1 << smoothingLevel;
+    headX = 0;
+    headY = 0;
+    tailX = 0;
+    tailY = 0;
+    accuX = 0;
+    accuY = 0;
+    tailX = ringDepth;
+    tailY = ringDepth;
+    for (int i = 0; i < ringLength; i++){
+        X[i] = 0;
+        Y[i] = 0;
+    }
+
+    [[NSUserDefaults standardUserDefaults] setObject:@(smoothingLevel) forKey:kSmoothingKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    LogInfo(@"smoothing level set to %d", smoothingLevel);
+    [self postUpdateNotification];
+}
+
 
 - (void)setPressureDamping:(float)pressureDamping
 {

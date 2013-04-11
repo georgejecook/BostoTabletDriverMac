@@ -37,6 +37,7 @@ Features:\
 ======\
 Fast,\
 Pressure,\
+Coordinate smoothing,\
 Tested as Working with:\
   Flash CS5, \
   Fireworks, \
@@ -59,4 +60,4 @@ https://trello.com/board/bostotabletdrivermac/515d7c50420441240f003bd5\
 \
 And can contact me via the github page: \
 https://github.com/georgejecook/BostoTabletDriverMac\
-}]]></resource></locale></resources><flags/><extra-files/><item type="file">01bostotablet.xml</item><mod>extraFiles</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>description</mod><mod>properties.anywhereDomain</mod><mod>properties.systemDomain</mod></pkmkdoc>
+}]]></resource></locale></resources><flags/><extra-files/><item type="file">01bostotablet.xml</item><mod>properties.systemDomain</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>description</mod><mod>properties.anywhereDomain</mod><mod>extraFiles</mod></pkmkdoc>
