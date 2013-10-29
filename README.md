@@ -1,5 +1,19 @@
 BostoTabletDriverMac
 ====================
+##UPDATE: I've moved to another city and no longer can support this driver.
+
+My advice for all mac users is DO NOT BUY A BOSTO.
+
+The tablets are great, but there is noone to carry on development of the driver. It's such a shame, as if Bosto just paid someone 500 bucks they could get this working on mac for all their drivers.
+
+And as a disclosure I'm a very succesful iOS developer - I've not once asked for any money whatsoever - in fact, I told Bosto last year that I have no time to develop this and to spend a few hundred bucks on a developer to get it working on mac,
+but that doesn't seem to fit with their agenda.
+
+Such a shame, as they are great budget models.
+
+Maybe later this year I'll buy a 22HD, and then I can continue dev. But for now I honestly say if you have mac buy something else.
+
+
 ##UPDATE: Release 0.4 is ready and is looking pretty good
 
 Installer file here: [PackageInstaller](https://github.com/georgejecook/BostoTabletDriverMac/blob/master/dist/BostoTabletDriverInstaller.pkg?raw=true) 
