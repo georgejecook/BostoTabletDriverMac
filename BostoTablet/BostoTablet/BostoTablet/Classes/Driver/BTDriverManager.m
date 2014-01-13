@@ -246,13 +246,13 @@ long accuP = 0;
 //    self.testStartBit = 8;
 //    self.numberOfTestBits = 16;
         NSNumber *pressureNumber = [[NSUserDefaults standardUserDefaults] objectForKey:kPressureKey];
-        self.pressureDamping = pressureNumber ? [pressureNumber floatValue] : 0.5;
+        self.pressureDamping = [pressureNumber isKindOfClass:[NSNumber class]] ? [pressureNumber floatValue] : 0.5;
 
         NSNumber *smoothingNumber = [[NSUserDefaults standardUserDefaults] objectForKey:kSmoothingKey];
-        self.smoothingLevel = smoothingNumber ? [smoothingNumber intValue] : 4;
+        self.smoothingLevel = [smoothingNumber isKindOfClass:[NSNumber class]]? [smoothingNumber intValue] : 4;
 
-        NSValue *offsetValue = [[NSUserDefaults standardUserDefaults] objectForKey:kOffsetKey];
-        self.cursorOffset = offsetValue ? [offsetValue pointValue] : CGPointZero;
+        NSArray *offsetArray = [[NSUserDefaults standardUserDefaults] objectForKey:kOffsetKey];
+        self.cursorOffset = offsetArray ? NSMakePoint([offsetArray[0] floatValue], [offsetArray[1] floatValue]) : CGPointZero;
 
         tailX = ringDepth;
         tailY = ringDepth;
@@ -909,7 +909,8 @@ int fromBinary(char *s) {
     accuY = 0;
     tailX = ringDepth;
     tailY = ringDepth;
-    for (int i = 0; i < ringLength; i++){
+    for (int i = 0; i < ringLength; i++)
+    {
         X[i] = 0;
         Y[i] = 0;
     }
@@ -951,7 +952,7 @@ int fromBinary(char *s) {
 {
     _cursorOffset = cursorOffset;
     NSValue *offsetObject = [NSValue valueWithPoint:cursorOffset];
-    [[NSUserDefaults standardUserDefaults] setObject:offsetObject forKey:kPressureKey];
+    [[NSUserDefaults standardUserDefaults] setObject:@[@(cursorOffset.x), @(cursorOffset.y)] forKey:kOffsetKey];
     [[NSUserDefaults standardUserDefaults] synchronize];
     LogInfo(@"offset set to %@", NSStringFromPoint(cursorOffset));
     [self postUpdateNotification];

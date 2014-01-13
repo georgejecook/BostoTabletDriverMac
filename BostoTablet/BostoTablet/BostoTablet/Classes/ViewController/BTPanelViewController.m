@@ -19,6 +19,11 @@
 #define MENU_ANIMATION_DURATION .1
 
 
+@interface BTPanelViewController ()
+@property(nonatomic, strong) NSTimer *cursorUpdateTimer;
+@property(nonatomic) int cursorMoveAction;
+@end
+
 @implementation BTPanelViewController
 {
     BOOL _hasActivePanel;
@@ -56,19 +61,20 @@
 {
     _eventMonitor = [NSEvent addGlobalMonitorForEventsMatchingMask:
                                      (NSLeftMouseDownMask | NSRightMouseDownMask | NSOtherMouseDownMask | NSKeyDownMask)
-                                                          handler:^void(NSEvent *incomingEvent) {
-                                                              NSEvent *result = incomingEvent;
-                                                              NSWindow *targetWindowForEvent = [incomingEvent window];
+                                                           handler:^void(NSEvent *incomingEvent) {
+                                                               NSEvent *result = incomingEvent;
+                                                               NSWindow *targetWindowForEvent = [incomingEvent window];
 
-                                                              if ([incomingEvent type] == NSKeyDown)
-                                                              {
-                                                                  if ([incomingEvent keyCode] == 53)
-                                                                  {
-                                                                      // when we press escape we send a mouse up event to be safe
-                                                                      [[BTDriverManager shared] sendMouseUpEventToUnblockTheMouse];
-                                                                  }
-                                                              }
-                                                          }];
+                                                               if ([incomingEvent type] == NSKeyDown)
+                                                               {
+                                                                   if ([incomingEvent keyCode] == 53)
+                                                                   {
+                                                                       // when we press escape we send a mouse up event to be safe
+                                                                       [[BTDriverManager shared]
+                                                                                         sendMouseUpEventToUnblockTheMouse];
+                                                                   }
+                                                               }
+                                                           }];
 }
 
 - (void)didChangeScreenParameters:(id)didChangeScreenParameters
@@ -218,6 +224,7 @@
 
     NSRect panelRect = [panel frame];
     panelRect.size.width = PANEL_WIDTH;
+    panelRect.size.height = POPUP_HEIGHT;
     panelRect.origin.x = roundf(NSMidX(statusRect) - NSWidth(panelRect) / 2);
     panelRect.origin.y = NSMaxY(statusRect) - NSHeight(panelRect);
 
@@ -315,30 +322,79 @@
 - (IBAction)didClickCusrorButton:(id)sender
 {
     NSButton *button = sender;
-    CGPoint currentCursor = [BTDriverManager shared].cursorOffset;
-    switch (button.tag){
-        case 1:
-            currentCursor.y -=1;
-            break;
-        case 2:
-            currentCursor.x +=1;
-            break;
-        case 3:
-            currentCursor.y +=1;
-            break;
-        case 4:
-            currentCursor.x -=1;
-            break;
-        case 5:
-            currentCursor.x = 0;
-            currentCursor.y = 0;
-            break;
-        default:
-            break;
-    }
-    [BTDriverManager shared].cursorOffset = currentCursor;
-
+    [self updateCursorPositionWithIndex:button.tag];
 }
+
+- (void)updateCursorPositionWithIndex:(int)index{
+    CGPoint currentCursor = [BTDriverManager shared].cursorOffset;
+    switch (index)
+       {
+           case 1:
+               NSLog(@"moving cursor up");
+               currentCursor.y -= 1;
+               break;
+           case 2:
+               NSLog(@"moving cursor right");
+               currentCursor.x += 1;
+               break;
+           case 3:
+               NSLog(@"moving cursor down");
+               currentCursor.y += 1;
+               break;
+           case 4:
+               NSLog(@"moving cursor left");
+               currentCursor.x -= 1;
+               break;
+           case 5:
+               currentCursor.x = 0;
+               currentCursor.y = 0;
+               break;
+           default:
+               break;
+       }
+       [BTDriverManager shared].cursorOffset = currentCursor;
+}
+- (void)keyDown:(NSEvent *)theEvent
+{
+    [super keyDown:theEvent];
+    switch( [theEvent keyCode] ) {
+           case 126:       // up arrow
+               self.cursorMoveAction = 1;
+               break;
+           case 125:       // down arrow
+               self.cursorMoveAction = 3;
+               break;
+           case 124:       // right arrow
+               self.cursorMoveAction = 2;
+               break;
+           case 123:       // left arrow
+               self.cursorMoveAction = 4;
+               break;
+           default:
+               break;
+       }
+
+    self.cursorUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:0.3f
+                                                            target:self
+                                                          selector:@selector(timerDidFire:)
+                                                          userInfo:nil
+                                                           repeats:YES]; 
+
+    [self updateCursorPositionWithIndex:self.cursorMoveAction];
+}
+
+- (void)keyUp:(NSEvent *)theEvent
+{
+    [super keyUp:theEvent];
+    self.cursorUpdateTimer = nil;
+}
+
+- (void)setCursorUpdateTimer:(NSTimer *)cursorUpdateTimer
+{
+    [_cursorUpdateTimer invalidate];
+    _cursorUpdateTimer = cursorUpdateTimer;
+}
+
 
 - (IBAction)didClickImproveSpeed:(id)sender
 {
